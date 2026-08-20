@@ -113,3 +113,7 @@ section{transition:opacity .6s ease,transform .6s ease}section:not(.inview){opac
 @keyframes scan{to{transform:translateX(230%)}}@keyframes entityBreath{50%{box-shadow:0 0 95px rgba(199,161,90,.22);transform:scale(1.015)}}@keyframes networkPulse{50%{opacity:.35}}@keyframes gateGlow{50%{box-shadow:inset 0 0 45px rgba(168,94,82,.08),0 0 35px rgba(168,94,82,.06)}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 `;document.head.appendChild(style);
+
+// Load the richer visual layer without making the homepage HTML brittle.
+const wowCss=document.createElement('link');wowCss.rel='stylesheet';wowCss.href='wow.css';document.head.appendChild(wowCss);
+const wowJs=document.createElement('script');wowJs.src='wow.js';document.body.appendChild(wowJs);
