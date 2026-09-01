@@ -1,0 +1,6 @@
+# local preview scratch (throwaway page-switcher copies used for screenshots)
+.preview/
+# editor/tooling config
+.claude/
+# working backups
+*.bak-*
