@@ -901,33 +901,37 @@ nav{
   .ag-hitl-name{ font-size:13px; font-weight:700; letter-spacing:.09em; color:var(--confirm); }
   .ag-hitl-sub{ font-size:12px; color:#8494AC; margin-top:4px; }
 
-  /* live example: evidence -> reasoning -> recommendation -> authority -> decision */
-  .ag-live{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); align-items:stretch; gap:0; }
-  @media(max-width:1200px){ .ag-live{ grid-template-columns:1fr; gap:14px; } .ag-live-arrow{ display:none; } }
-  .ag-col{ padding:0 14px; border-left:1px solid var(--border); min-width:0; }
-  .ag-col:first-child{ border-left:none; padding-left:0; }
-  .ag-col-head{ font-size:10px; font-weight:700; letter-spacing:.11em; margin-bottom:10px; }
+  /* live example laid out row-major so the heads, bodies and footers each
+     share a grid row — every column lines up instead of hanging from the top */
+  .ag-live{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); }
+  @media(max-width:1200px){ .ag-live{ grid-template-columns:1fr; } }
+  .ag-live > *{ padding:0 14px; min-width:0; border-left:1px solid var(--border); }
+  .ag-live > *:nth-child(5n+1){ border-left:none; padding-left:0; }
+  @media(max-width:1200px){ .ag-live > *{ border-left:none; padding-left:0; } }
+  .ag-h{ font-size:10px; font-weight:700; letter-spacing:.11em; padding-bottom:11px; }
+  .ag-b{ padding-bottom:13px; }
+  .ag-f{ padding-top:12px; border-top:1px solid var(--border); }
+  .ag-note{ font-size:11.5px; line-height:1.5; color:#8494AC; }
   .ag-ev{ display:flex; align-items:flex-start; gap:8px; font-size:11.5px; line-height:1.45; color:#A8B6CC; padding:5px 0; }
   .ag-ev i{ font-style:normal; color:var(--dim2); flex:0 0 auto; font-size:11px; margin-top:1px; }
   .ag-p{ font-size:11.5px; line-height:1.55; color:#A8B6CC; }
   .ag-kv{ font-size:11.5px; line-height:1.5; color:#8494AC; padding:6px 0; border-top:1px solid var(--border); }
   .ag-kv:first-of-type{ border-top:none; padding-top:0; }
   .ag-kv b{ display:block; color:#D6E0EE; font-weight:600; margin-top:2px; }
-  .ag-conf{ margin-top:12px; font-size:12px; color:#8494AC; }
+  .ag-conf{ font-size:11.5px; color:#8494AC; }
   .ag-conf b{ color:#D6E0EE; font-weight:600; }
   .ag-conf-bar{ height:6px; border-radius:4px; background:#17223A; overflow:hidden; margin-top:7px; }
   .ag-conf-bar i{ display:block; height:100%; border-radius:4px; background:linear-gradient(90deg,#2FD9BF,#34D399); }
-  .ag-pill{ display:inline-block; margin-top:10px; font-size:11px; font-weight:600; border-radius:6px; padding:5px 11px;
+  .ag-pill{ display:inline-block; font-size:11px; font-weight:600; border-radius:6px; padding:5px 11px;
     color:var(--perf); border:1px solid color-mix(in srgb, var(--perf) 55%, transparent);
     background:color-mix(in srgb, var(--perf) 12%, transparent); }
-  .ag-who{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-  .ag-who-av{ width:36px; height:36px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto; color:var(--govern);
+  .ag-who{ display:flex; align-items:center; gap:10px; margin-bottom:11px; }
+  .ag-who-av{ width:34px; height:34px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto; color:var(--govern);
     border:1px solid color-mix(in srgb, var(--govern) 50%, transparent);
     background:radial-gradient(circle, color-mix(in srgb, var(--govern) 18%, transparent), transparent 72%); }
-  .ag-who-av svg{ width:18px; height:18px; }
+  .ag-who-av svg{ width:17px; height:17px; }
   .ag-who-name{ font-size:12.5px; font-weight:650; color:#D6E0EE; }
   .ag-who-role{ font-size:11px; color:#8494AC; }
-  .ag-sign{ margin-top:10px; font-family:var(--serif); font-style:italic; font-size:15px; color:#7C8AA8; opacity:.75; }
 
   /* agent performance */
   .ag-perf{ display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:12px 18px; align-items:center; }
@@ -3503,39 +3507,41 @@ function widgetAgenticDash(w){
         <span class="fd-badge" style="color:var(--perf);background:color-mix(in srgb,var(--perf) 16%,transparent);">${L.badge}</span>
       </div>
       <div class="ag-live">
-        <div class="ag-col">
-          <div class="ag-col-head" style="color:#9FADC4;">EVIDENCE COLLECTED</div>
-          ${L.evidence.map(e=>`<div class="ag-ev"><i>${gi('◈')}</i>${e}</div>`).join('')}
-        </div>
-        <div class="ag-col">
-          <div class="ag-col-head" style="color:#9FADC4;">AI REASONING</div>
-          <div class="ag-p">${L.reasoning}</div>
-          <div class="ag-conf">Confidence: <b>${L.confidence}%</b>
-            <div class="ag-conf-bar"><i style="width:${L.confidence}%"></i></div>
-          </div>
-        </div>
-        <div class="ag-col">
-          <div class="ag-col-head" style="color:#9FADC4;">RECOMMENDATION</div>
+        <div class="ag-h" style="color:#9FADC4;">EVIDENCE COLLECTED</div>
+        <div class="ag-h" style="color:#9FADC4;">AI REASONING</div>
+        <div class="ag-h" style="color:#9FADC4;">RECOMMENDATION</div>
+        <div class="ag-h" style="color:var(--perf);">AUTHORITY REQUIRED</div>
+        <div class="ag-h" style="color:var(--govern);">HUMAN DECISION</div>
+
+        <div class="ag-b">${L.evidence.map(e=>`<div class="ag-ev"><i>${gi('◈')}</i>${e}</div>`).join('')}</div>
+        <div class="ag-b"><div class="ag-p">${L.reasoning}</div></div>
+        <div class="ag-b">
           <div class="ag-kv">Recommended Action:<b>${L.action}</b></div>
           <div class="ag-kv">Risk Score:<b>${L.riskScore}</b></div>
-          <div class="ag-kv">Rationale:<b style="font-weight:400;color:#B6C2D6;">${L.rationale}</b></div>
         </div>
-        <div class="ag-col">
-          <div class="ag-col-head" style="color:var(--perf);">AUTHORITY REQUIRED</div>
+        <div class="ag-b">
           <div class="ag-kv">Policy:<b style="font-weight:400;color:#B6C2D6;">${L.policy}</b></div>
           <div class="ag-kv">Reason:<b style="font-weight:400;color:#B6C2D6;">${L.policyReason}</b></div>
-          <span class="ag-pill">${L.gate}</span>
         </div>
-        <div class="ag-col">
-          <div class="ag-col-head" style="color:var(--govern);">HUMAN DECISION</div>
+        <div class="ag-b">
           <div class="ag-who">
             <div class="ag-who-av">${gi('◉')}</div>
             <div><div class="ag-who-name">${L.who}</div><div class="ag-who-role">${L.role}</div></div>
           </div>
           <div class="ag-kv">Decision:<b style="color:var(--confirm);">${L.decision}</b></div>
-          <div class="ag-kv">Action:<b>${L.taken}</b></div>
-          <div class="ag-kv">${L.when}</div>
-          <div class="ag-sign">${L.who}</div>
+        </div>
+
+        <div class="ag-f"><span class="ag-note">${L.evidence.length} items collected</span></div>
+        <div class="ag-f">
+          <div class="ag-conf">Confidence: <b>${L.confidence}%</b>
+            <div class="ag-conf-bar"><i style="width:${L.confidence}%"></i></div>
+          </div>
+        </div>
+        <div class="ag-f"><span class="ag-note">${L.rationale}</span></div>
+        <div class="ag-f"><span class="ag-pill">${L.gate}</span></div>
+        <div class="ag-f">
+          <div class="ag-kv" style="border:none;padding:0;">Action:<b>${L.taken}</b></div>
+          <span class="ag-note">${L.when}</span>
         </div>
       </div>
     </div>
@@ -4297,11 +4303,6 @@ const capabilityPages = {
       {icon:'↻', color:'var(--confirm)', value:'<60 sec', label:'Risk Refresh'},
       {icon:'✳', color:'var(--govern)',  value:'99.2%',   label:'Model Accuracy'}
     ],
-    capabilities:[
-      {icon:'⚑', title:'A resolved entity keeps its sources.', text:'Every attribute traces back to the record it came from, so a match can be inspected rather than trusted on faith.'},
-      {icon:'◎', title:'Disagreement stays visible.', text:'Where sources conflict, PRISM retains both and marks the conflict instead of silently picking a winner.'},
-      {icon:'↻', title:'Confidence is a number you can open.', text:'A 92% resolution shows which sources agreed, which did not, and what moved the score.'}
-    ],
     card:{title:'', meta:''},
     widget:{
       type:'intelligencedash',
@@ -4368,11 +4369,6 @@ const capabilityPages = {
       {icon:'⌖', color:'var(--intel)',   value:'500+',    label:'Data Sources'},
       {icon:'⛨', color:'var(--perf)',    value:'100%',    label:'Audit Ready'},
       {icon:'◎', color:'var(--confirm)', value:'100%',    label:'Policy Compliance'}
-    ],
-    capabilities:[
-      {icon:'⚑', title:'An agent recommends, it does not decide.', text:'Every consequential action stops at an authority gate — the agent prepares the case, a person signs it.'},
-      {icon:'◎', title:'Reasoning is shown, not summarised.', text:'The evidence, the pattern it matched and the confidence behind it all travel with the recommendation.'},
-      {icon:'↻', title:'Rejections teach the system.', text:'A modified or refused recommendation feeds back into how the next one is scored.'}
     ],
     card:{title:'', meta:''},
     widget:{
