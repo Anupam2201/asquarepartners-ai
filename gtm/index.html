@@ -886,6 +886,58 @@ nav{
     background:radial-gradient(circle, color-mix(in srgb, var(--intel) 16%, transparent), transparent 72%); }
   .fnd-hitl-name{ font-size:15px; font-weight:700; letter-spacing:.09em; color:var(--intel); }
   .fnd-hitl-sub{ font-size:12.5px; color:var(--dim); margin-top:3px; }
+  /* ---------- Agentic Actions ---------- */
+  .ag-steps{ display:flex; align-items:flex-start; gap:0; }
+  @media(max-width:1200px){ .ag-steps{ flex-wrap:wrap; gap:18px; justify-content:center; } .ag-arrow{ display:none; } }
+  .ag-step{ flex:1 1 0; min-width:0; text-align:center; padding:0 4px; }
+  .ag-step-icon{ width:56px; height:56px; margin:0 auto 12px; border-radius:50%; display:grid; place-items:center; font-size:21px;
+    color:var(--sc); border:1px solid color-mix(in srgb, var(--sc) 55%, transparent);
+    background:radial-gradient(circle, color-mix(in srgb, var(--sc) 16%, transparent), transparent 72%); }
+  .ag-step-name{ font-size:11.5px; font-weight:700; letter-spacing:.09em; color:var(--sc); margin-bottom:9px; }
+  .ag-step-sub{ font-size:11.5px; line-height:1.5; color:#8494AC; }
+  .ag-arrow{ flex:0 0 auto; align-self:flex-start; margin-top:26px; padding:0 3px; color:#3D5478; font-size:15px; }
+
+  .ag-hitl{ margin-top:18px; padding-top:16px; border-top:1px dashed #33456A; text-align:center; }
+  .ag-hitl-name{ font-size:13px; font-weight:700; letter-spacing:.09em; color:var(--confirm); }
+  .ag-hitl-sub{ font-size:12px; color:#8494AC; margin-top:4px; }
+
+  /* live example: evidence -> reasoning -> recommendation -> authority -> decision */
+  .ag-live{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); align-items:stretch; gap:0; }
+  @media(max-width:1200px){ .ag-live{ grid-template-columns:1fr; gap:14px; } .ag-live-arrow{ display:none; } }
+  .ag-col{ padding:0 14px; border-left:1px solid var(--border); min-width:0; }
+  .ag-col:first-child{ border-left:none; padding-left:0; }
+  .ag-col-head{ font-size:10px; font-weight:700; letter-spacing:.11em; margin-bottom:10px; }
+  .ag-ev{ display:flex; align-items:flex-start; gap:8px; font-size:11.5px; line-height:1.45; color:#A8B6CC; padding:5px 0; }
+  .ag-ev i{ font-style:normal; color:var(--dim2); flex:0 0 auto; font-size:11px; margin-top:1px; }
+  .ag-p{ font-size:11.5px; line-height:1.55; color:#A8B6CC; }
+  .ag-kv{ font-size:11.5px; line-height:1.5; color:#8494AC; padding:6px 0; border-top:1px solid var(--border); }
+  .ag-kv:first-of-type{ border-top:none; padding-top:0; }
+  .ag-kv b{ display:block; color:#D6E0EE; font-weight:600; margin-top:2px; }
+  .ag-conf{ margin-top:12px; font-size:12px; color:#8494AC; }
+  .ag-conf b{ color:#D6E0EE; font-weight:600; }
+  .ag-conf-bar{ height:6px; border-radius:4px; background:#17223A; overflow:hidden; margin-top:7px; }
+  .ag-conf-bar i{ display:block; height:100%; border-radius:4px; background:linear-gradient(90deg,#2FD9BF,#34D399); }
+  .ag-pill{ display:inline-block; margin-top:10px; font-size:11px; font-weight:600; border-radius:6px; padding:5px 11px;
+    color:var(--perf); border:1px solid color-mix(in srgb, var(--perf) 55%, transparent);
+    background:color-mix(in srgb, var(--perf) 12%, transparent); }
+  .ag-who{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .ag-who-av{ width:36px; height:36px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto; color:var(--govern);
+    border:1px solid color-mix(in srgb, var(--govern) 50%, transparent);
+    background:radial-gradient(circle, color-mix(in srgb, var(--govern) 18%, transparent), transparent 72%); }
+  .ag-who-av svg{ width:18px; height:18px; }
+  .ag-who-name{ font-size:12.5px; font-weight:650; color:#D6E0EE; }
+  .ag-who-role{ font-size:11px; color:#8494AC; }
+  .ag-sign{ margin-top:10px; font-family:var(--serif); font-style:italic; font-size:15px; color:#7C8AA8; opacity:.75; }
+
+  /* agent performance */
+  .ag-perf{ display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:12px 18px; align-items:center; }
+  .ag-perf-h{ font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim2); text-align:right; }
+  .ag-perf-row{ display:contents; }
+  .ag-perf-name{ display:flex; align-items:center; gap:9px; font-size:12.5px; color:#C3CEE0; padding:8px 0;
+    border-top:1px solid var(--border); }
+  .ag-perf-name i{ font-style:normal; color:var(--agentic); flex:0 0 auto; }
+  .ag-perf-v{ font-size:12.5px; font-weight:600; color:#D6E0EE; text-align:right; padding:8px 0;
+    border-top:1px solid var(--border); font-variant-numeric:tabular-nums; }
   .rtma-body{ padding:18px 40px 12px; }
   .rtma-hero{ display:grid; grid-template-columns:30% 70%; gap:22px; align-items:start; margin-bottom:12px; }
   @media(max-width:1100px){ .rtma-hero{grid-template-columns:1fr;} }
@@ -2522,6 +2574,7 @@ renderNetwork360();
 <div id="page-foundation" class="page" style="display:none;"></div>
 <div id="page-whyprism" class="page" style="display:none;"></div>
 <div id="page-layer-intelligence" class="page" style="display:none;"></div>
+<div id="page-layer-agentic" class="page" style="display:none;"></div>
 <div id="page-regreporting" class="page" style="display:none;"></div>
 <div id="page-rtm" class="page" style="display:none;"></div>
 
@@ -3422,6 +3475,119 @@ function widgetIntelligenceDash(w){
   </div>`;
 }
 
+/* ---------- Agentic Actions dashboard ---------- */
+function widgetAgenticDash(w){
+  const L = w.live;
+  return `
+  <div class="fd">
+    <div class="fd-card">
+      <div class="fd-card-head"><div class="fd-card-title" style="letter-spacing:.11em;font-size:11.5px;color:#9FADC4;">HOW IT WORKS IN ACTION</div></div>
+      <div class="ag-steps">
+        ${w.steps.map((s,i)=>`
+          ${i>0?'<div class="ag-arrow">&#10230;</div>':''}
+          <div class="ag-step" style="--sc:${s.color};">
+            <div class="ag-step-icon">${gi(s.icon)}</div>
+            <div class="ag-step-name">${s.name}</div>
+            <div class="ag-step-sub">${s.sub}</div>
+          </div>`).join('')}
+      </div>
+      <div class="ag-hitl">
+        <div class="ag-hitl-name">HUMAN-IN-THE-LOOP THROUGHOUT</div>
+        <div class="ag-hitl-sub">Human judgment. Human authority. Human responsibility.</div>
+      </div>
+    </div>
+
+    <div class="fd-card">
+      <div class="fd-card-head">
+        <div class="fd-card-title"><span style="color:#9FADC4;font-size:11.5px;letter-spacing:.09em;">LIVE EXAMPLE:</span> ${L.title}</div>
+        <span class="fd-badge" style="color:var(--perf);background:color-mix(in srgb,var(--perf) 16%,transparent);">${L.badge}</span>
+      </div>
+      <div class="ag-live">
+        <div class="ag-col">
+          <div class="ag-col-head" style="color:#9FADC4;">EVIDENCE COLLECTED</div>
+          ${L.evidence.map(e=>`<div class="ag-ev"><i>${gi('◈')}</i>${e}</div>`).join('')}
+        </div>
+        <div class="ag-col">
+          <div class="ag-col-head" style="color:#9FADC4;">AI REASONING</div>
+          <div class="ag-p">${L.reasoning}</div>
+          <div class="ag-conf">Confidence: <b>${L.confidence}%</b>
+            <div class="ag-conf-bar"><i style="width:${L.confidence}%"></i></div>
+          </div>
+        </div>
+        <div class="ag-col">
+          <div class="ag-col-head" style="color:#9FADC4;">RECOMMENDATION</div>
+          <div class="ag-kv">Recommended Action:<b>${L.action}</b></div>
+          <div class="ag-kv">Risk Score:<b>${L.riskScore}</b></div>
+          <div class="ag-kv">Rationale:<b style="font-weight:400;color:#B6C2D6;">${L.rationale}</b></div>
+        </div>
+        <div class="ag-col">
+          <div class="ag-col-head" style="color:var(--perf);">AUTHORITY REQUIRED</div>
+          <div class="ag-kv">Policy:<b style="font-weight:400;color:#B6C2D6;">${L.policy}</b></div>
+          <div class="ag-kv">Reason:<b style="font-weight:400;color:#B6C2D6;">${L.policyReason}</b></div>
+          <span class="ag-pill">${L.gate}</span>
+        </div>
+        <div class="ag-col">
+          <div class="ag-col-head" style="color:var(--govern);">HUMAN DECISION</div>
+          <div class="ag-who">
+            <div class="ag-who-av">${gi('◉')}</div>
+            <div><div class="ag-who-name">${L.who}</div><div class="ag-who-role">${L.role}</div></div>
+          </div>
+          <div class="ag-kv">Decision:<b style="color:var(--confirm);">${L.decision}</b></div>
+          <div class="ag-kv">Action:<b>${L.taken}</b></div>
+          <div class="ag-kv">${L.when}</div>
+          <div class="ag-sign">${L.who}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fd-row3">
+      <div class="fd-card">
+        <div class="fd-card-head"><div class="fd-card-title">Actions by Stage <span class="fd-info">(Last 7 days)</span></div></div>
+        <div class="fd-drivers" style="grid-template-columns:auto minmax(0,1fr); justify-content:center; gap:22px;">
+          <div>${fdDonut({items:w.byStage, size:150, thickness:24, main:w.byStageMain, sub:'Total Actions',
+            mainSize:22, subDy:20, alt:'Actions by stage'})}</div>
+          <div>
+            ${w.byStage.map(x=>`
+              <div class="fd-lrow">
+                <span class="fd-lrow-name"><i class="fd-dot" style="background:${x.color};"></i>${x.label}</span>
+                <span class="fd-lrow-val">${x.display} <em>(${x.pct})</em></span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="fd-card">
+        <div class="fd-card-head"><div class="fd-card-title">Action Outcomes <span class="fd-info">(Last 7 days)</span></div></div>
+        <div class="fd-drivers" style="grid-template-columns:auto minmax(0,1fr); justify-content:center; gap:22px;">
+          <div>${fdDonut({items:w.outcomes, size:150, thickness:24, main:w.outcomesMain, sub:'Resolved Actions',
+            mainSize:22, subDy:20, alt:'Action outcomes'})}</div>
+          <div>
+            ${w.outcomes.map(x=>`
+              <div class="fd-lrow">
+                <span class="fd-lrow-name"><i class="fd-dot" style="background:${x.color};"></i>${x.label}</span>
+                <span class="fd-lrow-val">${x.display} <em>(${x.pct})</em></span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="fd-card">
+        <div class="fd-card-head">
+          <div class="fd-card-title">Agent Performance</div>
+          <div class="fd-select">${w.agentScope} <i>&#9662;</i></div>
+        </div>
+        <div class="ag-perf">
+          <div></div><div class="ag-perf-h">Accuracy</div><div class="ag-perf-h">Avg. Time</div>
+          ${w.agents.map(a=>`
+            <div class="ag-perf-name"><i>${gi(a.icon)}</i>${a.name}</div>
+            <div class="ag-perf-v">${a.accuracy}</div>
+            <div class="ag-perf-v">${a.time}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function widgetJourneyFlow(w){
   return `
     <div class="rtma-journey">
@@ -3596,7 +3762,7 @@ function widgetKycProfile(w){
 const widgetRenderers = {
   heatmap: widgetHeatmap, checklist: widgetChecklist, donut: widgetDonutTable,
   workspace: widgetWorkspace, region: widgetRegionRisk, table: widgetReportsTable, alerts: widgetAlerts,
-  journeyflow: widgetJourneyFlow, kycprofile: widgetKycProfile, kyccddfull: widgetKycCddFull, framldash: widgetFramlDash, sanctionsdash: widgetSanctionsDash, investigationsdash: widgetInvestigationsDash, regreportingdash: widgetRegReportingDash, intelligencedash: widgetIntelligenceDash
+  journeyflow: widgetJourneyFlow, kycprofile: widgetKycProfile, kyccddfull: widgetKycCddFull, framldash: widgetFramlDash, sanctionsdash: widgetSanctionsDash, investigationsdash: widgetInvestigationsDash, regreportingdash: widgetRegReportingDash, intelligencedash: widgetIntelligenceDash, agenticdash: widgetAgenticDash
 };
 
 function kycFilter(type){
@@ -4184,6 +4350,76 @@ const capabilityPages = {
       ]
     }
   },
+  'layer-agentic': {
+    color:'#2FD9BF', eyebrow:'AGENTIC ACTIONS', shortName:'Agentic Actions',
+    hideIconBanner:true, bareWidget:true, narrowNarrative:true,
+    headline:'Investigate. Reason.<br>Recommend. <span style="color:#2FD9BF;">Decide.</span>',
+    lede:'PRISM AI agents investigate signals, reason over evidence, and recommend next-best actions — continuously learning while staying within your policies and guardrails.',
+    primaryCta:'Explore Agentic Actions',
+    whyTitle:'AI agents act within policy and boundaries',
+    whyList:[
+      {icon:'▤', color:'var(--agentic)', title:'Case &amp; Alert Triage', text:'Prioritize and route to the right queue.'},
+      {icon:'◐', color:'var(--intel)',   title:'Reasoning &amp; Analysis', text:'Analyze evidence across entities &amp; networks.'},
+      {icon:'✳', color:'var(--govern)',  title:'Recommendations', text:'Generate explainable, risk-aligned actions.'},
+      {icon:'⌖', color:'var(--gold)',    title:'Next-Best Actions', text:'Suggest optimal actions within policy.'},
+      {icon:'◉', color:'var(--confirm)', title:'Human-in-the-Loop', text:'Authority required. Humans decide.'}
+    ],
+    bottomStats:[
+      {icon:'⌖', color:'var(--intel)',   value:'500+',    label:'Data Sources'},
+      {icon:'⛨', color:'var(--perf)',    value:'100%',    label:'Audit Ready'},
+      {icon:'◎', color:'var(--confirm)', value:'100%',    label:'Policy Compliance'}
+    ],
+    capabilities:[
+      {icon:'⚑', title:'An agent recommends, it does not decide.', text:'Every consequential action stops at an authority gate — the agent prepares the case, a person signs it.'},
+      {icon:'◎', title:'Reasoning is shown, not summarised.', text:'The evidence, the pattern it matched and the confidence behind it all travel with the recommendation.'},
+      {icon:'↻', title:'Rejections teach the system.', text:'A modified or refused recommendation feeds back into how the next one is scored.'}
+    ],
+    card:{title:'', meta:''},
+    widget:{
+      type:'agenticdash',
+      byStageMain:'12.8M', outcomesMain:'8.7M', agentScope:'All Agents',
+      steps:[
+        {name:'TRIAGE',            color:'#2FD9BF', icon:'▲', sub:'AI prioritizes alerts and routes to the right queue'},
+        {name:'INVESTIGATE',       color:'#2FD9BF', icon:'⌖', sub:'Agent gathers evidence across entities &amp; networks'},
+        {name:'REASON',            color:'#2FD9BF', icon:'◐', sub:'AI reasons over patterns, behavior and context'},
+        {name:'RECOMMEND',         color:'#2FD9BF', icon:'✳', sub:'Agent recommends action with explainability'},
+        {name:'AUTHORITY REQUIRED',color:'#E0A550', icon:'⛨', sub:'Policy and rules require human authority for decision'},
+        {name:'HUMAN DECISION',    color:'#9B7CE0', icon:'◉', sub:'Human reviews and makes the final decision'}
+      ],
+      live:{
+        title:'Structuring via Multiple Accounts', badge:'HIGH PRIORITY',
+        evidence:['18 cash deposits &lt; $9,500','5 accounts, one controller','High-risk geography','Repeat behaviour pattern'],
+        reasoning:'Structuring to stay under the CTR threshold. Accounts and devices linked. Velocity up over 30 days.',
+        confidence:91,
+        action:'File SAR', riskScore:'92 / 100',
+        rationale:'Intent to evade reporting threshold.',
+        policy:'SAR filing requires investigator approval.',
+        policyReason:'High impact, regulatory report.',
+        gate:'Decision Required',
+        who:'Jane Smith', role:'Senior Investigator',
+        decision:'Approve', taken:'SAR Filed', when:'May 07, 2025 &nbsp;·&nbsp; 10:24 AM'
+      },
+      byStage:[
+        {label:'Triage',         value:2100, display:'2.1M', pct:'16%', color:'#3FCF9E'},
+        {label:'Investigate',    value:3400, display:'3.4M', pct:'27%', color:'#4FA8E0'},
+        {label:'Reason',         value:2600, display:'2.6M', pct:'20%', color:'#E0A550'},
+        {label:'Recommend',      value:3100, display:'3.1M', pct:'24%', color:'#9B7CE0'},
+        {label:'Human Decision', value:1600, display:'1.6M', pct:'13%', color:'#E5484D'}
+      ],
+      outcomes:[
+        {label:'Approved',  value:6200, display:'6.2M', pct:'71%', color:'#3FCF9E'},
+        {label:'Modified',  value:1300, display:'1.3M', pct:'15%', color:'#E0C24F'},
+        {label:'Rejected',  value:700,  display:'0.7M', pct:'8%',  color:'#E5484D'},
+        {label:'Sent Back', value:500,  display:'0.5M', pct:'6%',  color:'#9B7CE0'}
+      ],
+      agents:[
+        {icon:'▲', name:'Triage Agent',         accuracy:'98.7%', time:'1.2 sec'},
+        {icon:'⌖', name:'Investigation Agent',  accuracy:'96.1%', time:'2.4 sec'},
+        {icon:'◐', name:'Reasoning Agent',      accuracy:'95.3%', time:'3.1 sec'},
+        {icon:'✳', name:'Recommendation Agent', accuracy:'94.8%', time:'1.6 sec'}
+      ]
+    }
+  },
   investigations: {
     color:'#C7A15A', eyebrow:'INVESTIGATIONS', shortName:'Investigations',
     hideIconBanner:true, bareWidget:true, narrowNarrative:true,
@@ -4764,7 +5000,7 @@ const PRISM_LAYERS = [
   {n:1, name:'AI INTELLIGENCE',    color:'#5CC8FF',        art:'brain',      to:'layer-intelligence',
    tag:'Ingest. Unify. Evaluate. Turn data into trusted intelligence.',
    items:[['◈','Entity &amp; Network Resolution'],['▲','Risk &amp; Signal Evaluation'],['◐','Context &amp; Enrichment'],['⌖','Detection &amp; Prioritization']]},
-  {n:2, name:'AGENTIC ACTIONS',    color:'#34E4C8',        art:'robot',      to:'investigations',
+  {n:2, name:'AGENTIC ACTIONS',    color:'#34E4C8',        art:'robot',      to:'layer-agentic',
    tag:'Investigate. Reason. Recommend. AI agents act within policy and boundaries.',
    items:[['▤','Case &amp; Alert Triage'],['◉','Reasoning &amp; Analysis'],['✳','Recommendations'],['⌁','Next-Best Actions']]},
   {n:3, name:'AI GOVERNANCE',      color:'#AF92FF',        art:'shieldLock', to:'regreporting',
