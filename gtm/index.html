@@ -439,9 +439,14 @@ nav{
   .n360-select{ display:inline-flex; }
   .n360-select select{
     appearance:none; -webkit-appearance:none; cursor:pointer;
-    background:var(--panel2) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%238A97C7' stroke-width='1.6'/></svg>") no-repeat right 10px center;
+    /* The chevron carries width/height as well as a viewBox, and the rule sets
+       background-size. An SVG data URI with only a viewBox has no intrinsic
+       size, so the browser scaled it to fill the whole control and it swallowed
+       the label. */
+    background:var(--panel2) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 12 8'><path d='M1 1.5l5 5 5-5' fill='none' stroke='%238A97C7' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 11px center;
+    background-size:11px 7px;
     border:1px solid var(--border); border-radius:8px; color:var(--text);
-    font:inherit; font-size:11.5px; padding:6px 28px 6px 12px;
+    font:inherit; font-size:11.5px; padding:6px 30px 6px 12px;
   }
   .n360-select select:focus-visible{ outline:2px solid var(--govern); outline-offset:1px; }
   .n360-filters{ font-size:11.5px; color:var(--dim2); white-space:nowrap; }
