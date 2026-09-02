@@ -877,7 +877,15 @@ nav{
   .fd-more{ display:block; text-align:center; margin-top:16px; padding-top:15px; border-top:1px solid var(--border);
     font-size:13px; font-weight:600; color:var(--govern); }
   /* legend rows shared by the summary and source donuts */
-  .fd-lrow{ display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:14px; font-size:12.5px; padding:7px 0; }
+  /* Capped, or the row grows with its card: in a 920px card each legend line
+     stretched to 668px, leaving the label at one end and its own value at the
+     other with ~500px of nothing between them. The donut and its legend have
+     to read as one figure, not two columns that happen to share a card. */
+  .fd-lrow{ display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:14px;
+    font-size:12.5px; padding:7px 0; }
+  /* Scoped to the donut blocks: elsewhere the same class is used as a header
+     row whose value is a long meta string, and capping that clipped its name. */
+  .fd-drivers .fd-lrow{ max-width:360px; }
   .fd-lrow-name{ display:flex; align-items:center; gap:9px; color:var(--dim); white-space:nowrap; }
   .fd-lrow-val{ color:var(--text); font-weight:600; white-space:nowrap; text-align:right; font-variant-numeric:tabular-nums; }
   .fd-lrow-val em{ font-style:normal; color:var(--dim2); font-weight:500; }
