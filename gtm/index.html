@@ -419,80 +419,184 @@ nav{
   .sd-sub{ font-size:11.5px; color:var(--dim2); }
 
   /* ---------- Network 360 ---------- */
-  .n360-tabs{ display:flex; align-items:center; gap:18px; font-size:12px; color:var(--dim); border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:16px; flex-wrap:wrap; }
-  .n360-tab-label{ color:var(--dim2); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; margin-right:4px; }
-  .n360-tabs span.active{ color:var(--pc); font-weight:700; background:color-mix(in srgb, var(--pc) 18%, transparent); padding:5px 12px; border-radius:999px; }
-  .n360-filters{ margin-left:auto; font-size:11.5px; color:var(--dim2); }
+  /* Toolbar: view lenses on the left, data filters pushed right. Both wrap
+     onto their own line before anything is allowed to overflow. */
+  .n360-toolbar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    font-size:12px; color:var(--dim); border-bottom:1px solid var(--border);
+    padding-bottom:12px; margin-bottom:14px; }
+  .n360-tab-label{ color:var(--dim2); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; }
+  .n360-views{ display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+  .n360-controls{ display:flex; align-items:center; gap:10px; margin-left:auto; flex-wrap:wrap; }
 
-  .n360-graph-area{ position:relative; background:var(--bg-deep); border-radius:12px; padding:10px; }
-  #networkGraph{ width:100%; height:430px; display:block; }
+  .n360-views span[data-view]{ cursor:pointer; padding:5px 12px; border-radius:999px; font-weight:400;
+    color:var(--dim); background:transparent; transition:color .2s ease, background .2s ease; white-space:nowrap; }
+  .n360-views span[data-view]:hover{ color:var(--text); }
+  .n360-views span[data-view].active{ font-weight:700; color:var(--govern);
+    background:color-mix(in srgb, var(--govern) 18%, transparent); }
+  .n360-views span[data-view].active[data-tone="risk"]{ color:var(--risk);
+    background:color-mix(in srgb, var(--risk) 18%, transparent); }
 
-  /* Current running through the wires. Each edge is drawn twice: a dim static
-     conductor, and a dashed overlay whose offset animates, so the dashes read
-     as charge travelling from the entity outward. The dash cycle is 22 units
-     and the offset runs to -44, i.e. exactly two cycles, so the loop is
-     seamless with no visible jump. Risk edges run hotter and faster. */
+  .n360-select{ display:inline-flex; }
+  .n360-select select{
+    appearance:none; -webkit-appearance:none; cursor:pointer;
+    background:var(--panel2) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%238A97C7' stroke-width='1.6'/></svg>") no-repeat right 10px center;
+    border:1px solid var(--border); border-radius:8px; color:var(--text);
+    font:inherit; font-size:11.5px; padding:6px 28px 6px 12px;
+  }
+  .n360-select select:focus-visible{ outline:2px solid var(--govern); outline-offset:1px; }
+  .n360-filters{ font-size:11.5px; color:var(--dim2); white-space:nowrap; }
+  .n360-iconbtn{
+    width:28px; height:28px; border-radius:8px; border:1px solid var(--border);
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:13px; color:var(--dim); cursor:pointer; background:var(--panel2);
+    transition:color .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .n360-iconbtn:hover{ color:var(--text); border-color:var(--govern); }
+  .n360-iconbtn.is-on{ color:var(--govern); border-color:var(--govern); background:color-mix(in srgb, var(--govern) 16%, transparent); }
+  .n360-searchbox{
+    flex:1 0 100%; margin-top:2px; background:var(--panel2); border:1px solid var(--govern);
+    border-radius:8px; color:var(--text); font:inherit; font-size:12px; padding:8px 12px;
+  }
+
+  /* Canvas and inspector sit side by side, so the panel never covers the graph
+     it is describing — at narrow widths it drops below instead. */
+  /* The graph is the point of this page, so it takes more of the width than
+     the shared 38/62 split gives it. */
+  .n360-body{ grid-template-columns:24% 76%; gap:24px; }
+  .n360-main{ padding:16px; }
+  @media(max-width:1100px){ .n360-body{ grid-template-columns:1fr; } }
+  .n360-stage{ display:grid; grid-template-columns:minmax(0,1fr) 268px; gap:12px;
+    background:var(--bg-deep); border-radius:12px; padding:10px; }
+  /* Docking the inspector beside the canvas costs ~280px of graph. Below this
+     the graph reads better with the full width and the panel underneath, so
+     the side-by-side only kicks in when there is genuinely room for both. */
+  @media(max-width:1700px){
+    .n360-stage{ grid-template-columns:1fr; }
+    /* stacked, the panel would stretch the whole canvas width and read as
+       mostly empty space between each label and its value */
+    .n360-inspector{ max-width:560px; }
+  }
+  .n360-canvas{ position:relative; min-width:0; }
+  #networkGraph{ width:100%; height:auto; aspect-ratio:1180/660; display:block; }
+  .n360-count{ font-size:11px; color:var(--dim2); text-align:center; padding-top:6px; }
+
+  .n360-stage.is-expanded{
+    position:fixed; inset:20px; z-index:200; overflow:auto;
+    box-shadow:0 40px 120px -30px #000; border:1px solid var(--border);
+  }
+  body.n360-expanded{ overflow:hidden; }
+
+  /* ---- graph marks ---- */
+  .n360-node{ cursor:pointer; }
+  .n360-node .node-hit{ fill:transparent; stroke:none; }
+  .n360-node-label{ font:600 13px Inter, sans-serif; fill:var(--text); }
+  .n360-node-sub{ font:400 10.5px Inter, sans-serif; fill:var(--dim); }
+  .n360-edge-label{ font:600 10.5px Inter, sans-serif; letter-spacing:.01em; }
+  .n360-edge-hit{ cursor:pointer; }
+  .n360-edge-hit.is-out{ display:none; }
+
+  /* Current running through the wires. Each edge draws a dim static conductor
+     plus a dashed overlay whose offset animates two full dash cycles, so the
+     loop is seamless. Risk edges run hotter and faster. */
   .n360-current{ stroke-dasharray:7 15; stroke-linecap:round; opacity:.95;
     animation:n360current 1.5s linear infinite; }
   .n360-current.is-risk{ animation-duration:.85s; }
   @keyframes n360current{ to{ stroke-dashoffset:-44; } }
 
-  .n360-node{ cursor:pointer; }
-  .n360-node .node-hit{ fill:transparent; stroke:none; }
-  /* Focus mode: hovering or selecting one node drops everything unrelated back
-     so a single relationship can be read out of a dense graph. */
+  /* Focus mode: hovering or selecting one thing drops everything unrelated
+     back, so a single relationship reads out of a dense graph. */
   #networkGraph .n360-item{ transition:opacity .18s ease; }
-  #networkGraph.is-focused .n360-item{ opacity:.12; }
+  #networkGraph.is-focused .n360-item{ opacity:.1; }
   #networkGraph.is-focused .n360-item.is-lit{ opacity:1; }
-  .n360-node.is-selected .node-ring{ stroke-width:2.6; }
-  /* View filtering hides rather than dims, so it cannot be confused with focus */
+  .n360-node.is-selected .node-ring{ stroke-width:3; }
+  .n360-wire.is-selected{ stroke-width:3; }
+  /* View filtering hides rather than dims, so it cannot be read as focus */
   #networkGraph .n360-item.is-out{ display:none; }
-
-  /* Self-contained so the pill cannot be left behind on a stale tab: the older
-     .n360-tabs span.active rule ties this one on specificity and leans on an
-     inherited --pc, so tone is carried by data-tone here instead. */
-  .n360-tabs span[data-view]{ cursor:pointer; padding:5px 12px; border-radius:999px; font-weight:400;
-    color:var(--dim); background:transparent; transition:color .2s ease, background .2s ease; }
-  .n360-tabs span[data-view]:hover{ color:var(--text); }
-  .n360-tabs span[data-view].active{ font-weight:700; color:var(--govern);
-    background:color-mix(in srgb, var(--govern) 18%, transparent); }
-  .n360-tabs span[data-view].active[data-tone="risk"]{ color:var(--risk);
-    background:color-mix(in srgb, var(--risk) 18%, transparent); }
-  .n360-empty{ font-size:11.5px; color:var(--dim2); text-align:center; padding:10px 0 2px; }
-
-  @media(prefers-reduced-motion:reduce){
-    .n360-current{ animation:none; stroke-dasharray:none; opacity:.55; }
-  }
-  .rel-detail-card{
-    position:absolute; top:16px; right:16px; width:250px;
-    background:rgba(14,23,38,0.96); border:1px solid var(--govern); border-radius:12px; padding:16px;
-    box-shadow:0 20px 50px -20px rgba(0,0,0,0.7);
-  }
-  .rd-head{ display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--govern); font-weight:700; margin-bottom:8px; }
-  .rd-close{ cursor:pointer; color:var(--dim2); font-size:14px; }
-  .rd-title{ font-size:12.5px; font-weight:700; color:var(--text); line-height:1.4; }
-  .rd-account{ font-size:11px; color:var(--dim); margin:2px 0 8px; }
-  .rd-badge{ display:inline-block; font-size:9.5px; background:rgba(229,72,77,0.15); color:var(--risk); border:1px solid var(--risk); padding:3px 9px; border-radius:999px; margin-bottom:10px; }
-  .rd-fields > div{ display:flex; justify-content:space-between; font-size:10.5px; padding:5px 0; border-top:1px solid var(--border); }
-  .rd-fields > div:first-child{ border-top:none; }
-  .rd-fields .val{ color:var(--text); font-weight:600; }
-  .rd-fields .lbl{ color:var(--dim2); }
-  .rd-why-title{ font-size:10.5px; font-weight:700; color:var(--text); margin-top:10px; }
-  .rd-why{ font-size:10.5px; color:var(--dim); line-height:1.5; margin:4px 0 8px; }
+  /* Search dims the misses instead of hiding them, so you keep your bearings */
+  #networkGraph.is-searching .n360-node:not(.is-hit){ opacity:.22; }
+  .n360-node.is-hit .node-ring{ stroke-width:3.2; }
 
   .n360-legend{ display:flex; flex-wrap:wrap; gap:16px; align-items:center; font-size:10.5px; color:var(--dim); padding:14px 4px 0; }
   .n360-legend i{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:middle; }
   .leg-line{ color:var(--dim2); }
   .leg-susp{ color:var(--risk); }
 
-  .path-strip{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--panel2); border-radius:12px; padding:18px; }
-  .path-node{ display:flex; flex-direction:column; align-items:center; gap:6px; min-width:90px; text-align:center; }
+  /* ---- inspector ---- */
+  .n360-inspector{
+    background:rgba(14,23,38,0.96); border:1px solid var(--govern); border-radius:12px;
+    padding:16px; align-self:start; min-width:0;
+  }
+  .rd-head{ display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--govern); font-weight:700; margin-bottom:10px; }
+  .rd-close{ cursor:pointer; color:var(--dim2); font-size:14px; }
+  .rd-title{ font-size:13px; font-weight:700; color:var(--text); line-height:1.45; }
+  .rd-badge-row{ display:inline-block; font-size:9.5px; font-weight:700; padding:3px 9px; border-radius:999px; margin:8px 0 10px; }
+  .rd-badge-row.is-risk{ background:rgba(229,72,77,0.15); color:var(--risk); border:1px solid var(--risk); }
+  .rd-badge-row.is-flow{ background:rgba(52,211,153,0.14); color:var(--confirm); border:1px solid var(--confirm); }
+  .rd-badge-row.is-ok{ background:rgba(155,124,224,0.14); color:var(--govern); border:1px solid var(--govern); }
+  .rd-fields > div{ display:flex; justify-content:space-between; gap:12px; font-size:10.5px; padding:6px 0; border-top:1px solid var(--border); }
+  .rd-fields > div:first-child{ border-top:none; }
+  .rd-fields .val{ color:var(--text); font-weight:600; text-align:right; }
+  .rd-fields .lbl{ color:var(--dim2); }
+  .rd-why-title{ font-size:10.5px; font-weight:700; color:var(--text); margin-top:12px; }
+  .rd-why{ font-size:10.5px; color:var(--dim); line-height:1.55; margin:4px 0 10px; }
+  .rd-evidence{ font-size:11px; font-weight:600; color:var(--govern); text-decoration:underline; cursor:pointer; }
+  .rd-actions{ display:flex; gap:14px; margin-top:14px; padding-top:12px; border-top:1px solid var(--border); color:var(--dim2); font-size:14px; }
+  .rd-actions span{ cursor:pointer; transition:color .2s ease; }
+  .rd-actions span:hover{ color:var(--govern); }
+  /* RTM in Action still floats its panel over its own graph and shares the
+     rd-* type scale, so it keeps the absolute variant Network 360 no longer
+     needs now that the inspector is docked beside the canvas. */
+  .rel-detail-card{
+    position:absolute; top:16px; right:16px; width:250px;
+    background:rgba(14,23,38,0.96); border:1px solid var(--govern); border-radius:12px; padding:16px;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,0.7);
+  }
+  .rd-account{ font-size:11px; color:var(--dim); margin:2px 0 8px; }
+
+  /* ---- suspicious path ---- */
+  .n360-path{ display:flex; align-items:flex-start; gap:6px; flex-wrap:wrap; }
+  .path-node{ display:flex; flex-direction:column; align-items:center; gap:5px; min-width:88px; text-align:center; }
   .path-icon{ width:38px; height:38px; border-radius:50%; border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:15px; color:var(--govern); }
   .path-node.path-highlight .path-icon{ border-color:var(--govern); box-shadow:0 0 14px rgba(155,124,224,.5); }
   .path-node.path-risk .path-icon{ border-color:var(--risk); color:var(--risk); box-shadow:0 0 14px rgba(229,72,77,.5); }
   .path-label{ font-size:10.5px; font-weight:700; color:var(--text); }
   .path-sub{ font-size:9px; color:var(--dim2); }
-  .path-arrow{ font-size:9.5px; color:var(--dim2); white-space:nowrap; margin:0 2px; align-self:center; }
+  .path-date{ font-size:9px; color:var(--dim2); background:var(--panel2); border:1px solid var(--border);
+    border-radius:6px; padding:3px 7px; margin-top:4px; white-space:nowrap; }
+  .path-arrow{ font-size:9.5px; color:var(--dim2); white-space:nowrap; margin:18px 2px 0; align-self:flex-start; }
+
+  /* ---- lower band: three panels, divided ---- */
+  .n360-lower-grid{ display:grid; grid-template-columns:1.25fr .85fr 1fr; gap:0; }
+  @media(max-width:1300px){ .n360-lower-grid{ grid-template-columns:1fr; } }
+  .n360-panel{ padding:0 24px; border-left:1px solid var(--border); min-width:0; }
+  .n360-panel:first-child{ border-left:none; padding-left:0; }
+  @media(max-width:1300px){
+    .n360-panel{ border-left:none; padding:24px 0 0; border-top:1px solid var(--border); }
+    .n360-panel:first-child{ padding-top:0; border-top:none; }
+  }
+  .n360-panel-head{ display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+  .n360-panel-sub{ font-size:11px; color:var(--dim2); margin-bottom:16px; }
+  .n360-panel-cta{ display:inline-block; margin-top:16px; font-size:12px; font-weight:600; color:var(--dim);
+    border:1px solid var(--border); border-radius:8px; padding:9px 16px; cursor:pointer;
+    transition:color .2s ease, border-color .2s ease; }
+  .n360-panel-cta:hover{ color:var(--text); border-color:var(--govern); }
+
+  .n360-glance{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .n360-glance-tile{ background:var(--panel2); border:1px solid var(--border); border-radius:12px;
+    padding:14px 10px; text-align:center; }
+  .n360-glance-icon{ font-size:17px; margin-bottom:8px; }
+  .n360-glance-num{ font-size:20px; font-weight:700; line-height:1.1; }
+  .n360-glance-label{ font-size:9.5px; color:var(--dim); line-height:1.4; margin-top:6px; }
+  .n360-expo-label{ font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim2); margin:20px 0 8px; }
+  .n360-expo-bar{ display:flex; gap:3px; height:9px; }
+  .n360-expo-bar span{ border-radius:3px; }
+  .n360-expo-key{ display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; font-size:10px; color:var(--dim); }
+  .n360-expo-key i{ display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+
+  @media(prefers-reduced-motion:reduce){
+    .n360-current{ animation:none; stroke-dasharray:none; opacity:.55; }
+  }
 
   /* ---------- Why PRISM goes further (competitive differentiator) ---------- */
   /* ---------- Capability statements (implicit differentiation, no comparison table) ---------- */
@@ -508,22 +612,6 @@ nav{
   }
   .cap-text b{ color:var(--text); font-size:13px; }
   .cap-text p{ color:var(--dim); font-size:12px; line-height:1.55; margin-top:3px; }
-
-  /* ---------- PRISM Fabric interactive use-case cards ---------- */
-  .fabric-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
-  .fabric-card{
-    background:var(--panel2); border:1px solid var(--border); border-radius:12px; padding:14px;
-    cursor:pointer; transition:border-color .25s ease, transform .2s ease;
-  }
-  .fabric-card:hover{ transform:translateY(-2px); border-color:var(--fc); }
-  .fabric-card.open{ border-color:var(--fc); box-shadow:0 14px 34px -18px var(--fc); grid-column:1 / -1; }
-  .fabric-icon{ width:100px; height:60px; margin-bottom:8px; }
-  .fabric-mini-svg{ width:100%; height:100%; }
-  .fabric-title{ font-size:12.5px; font-weight:700; color:var(--text); line-height:1.35; }
-  .fabric-drawer{ max-height:0; overflow:hidden; opacity:0; transition:max-height .4s ease, opacity .3s ease, margin-top .3s ease; }
-  .fabric-card.open .fabric-drawer{ max-height:200px; opacity:1; margin-top:10px; }
-  .fabric-drawer p{ font-size:11.5px; color:var(--dim); line-height:1.55; }
-  .fabric-link{ display:inline-block; margin-top:8px; font-size:11px; font-weight:600; color:var(--fc); }
 
   /* ---------- Generic Capability Page shell (FRAML, KYC, Sanctions, Investigations,
      Portfolio Risk, Regulatory Reporting, Real-Time Monitoring all share this) ---------- */
@@ -2397,310 +2485,302 @@ renderEntity360();
 
 <script>
 /* ============================================================
-   NETWORK 360 — the showpiece graph. One continuous page like
-   Entity 360: narrative left, live graph + suspicious-path trace
-   + legend + stats all in one flow on the right.
+   NETWORK 360 — the showpiece graph.
+   A real multi-hub network, not a star: edges join arbitrary
+   node pairs on curves, every node is typed and jurisdictioned,
+   and every edge carries its own evidence into the inspector.
+
+   Division of labour on this page, so nothing is said twice:
+     left narrative  — what the graph can DO (capabilities)
+     Network at a Glance — the numbers, stated once
+     How this graph stays trustworthy — the guarantees
    ============================================================ */
-const network360Data = {
-  center: {label:'Acme Trading Ltd.', sub:'E-742', icon:'◆'},
-  /* `views` drives the VIEW tabs — a node shows in a view when it is listed.
-     `detail` is what the Relationship Details card shows when the node is
-     clicked, so every edge really does carry its own evidence rather than the
-     card standing in for one hardcoded relationship. */
-  nodes: [
-    {id:'director', x:95,  y:65,  icon:'◐', label:'John D.', sub:'Director', rel:'Director', edgeType:'solid',
-     views:['entities','ownership','suspicious'],
-     detail:{title:'Acme Trading Ltd. (E-742) → John D.', account:'Director since Jan 2022', badge:'PEP Connection',
-       fields:[{label:'Relationship Type',value:'Director'},{label:'Direction',value:'Inbound control'},{label:'Source',value:'KYC System'},{label:'First Observed',value:'Jan 12, 2022'},{label:'Last Observed',value:'May 06, 2025'},{label:'Confidence',value:'High · 96%'}],
-       why:'Politically exposed person holding board control of the subject entity.'}},
-    {id:'global',   x:225, y:38,  icon:'▤', label:'Global Imports Ltd.', sub:'O-981', rel:'Owns', edgeType:'solid',
-     views:['entities','ownership'],
-     detail:{title:'Acme Trading Ltd. (E-742) → Global Imports Ltd.', account:'O-981', badge:'Ownership Link',
-       fields:[{label:'Relationship Type',value:'Owns 75%'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'Corporate Registry'},{label:'First Observed',value:'Mar 03, 2022'},{label:'Last Observed',value:'Apr 28, 2025'},{label:'Confidence',value:'High · 91%'}],
-       why:'Majority holding places both entities under common control.'}},
-    {id:'offshore', x:335, y:55,  icon:'▤', label:'Offshore Co.', sub:'BVI', rel:'Beneficial Owner', edgeType:'solid',
-     views:['entities','ownership'],
-     detail:{title:'Acme Trading Ltd. (E-742) → Offshore Co.', account:'BVI · O-117', badge:'High Risk Jurisdiction',
-       fields:[{label:'Relationship Type',value:'Beneficial Owner'},{label:'Direction',value:'Inbound'},{label:'Source',value:'Open Source'},{label:'First Observed',value:'Aug 19, 2022'},{label:'Last Observed',value:'Feb 11, 2025'},{label:'Confidence',value:'Medium · 74%'}],
-       why:'Ownership routed through a jurisdiction with limited beneficial-ownership disclosure.'}},
-    {id:'bank1',    x:400, y:148, icon:'⌂', label:'First Union Bank', sub:'···· 7689', rel:'Controls', edgeType:'suspicious',
-     views:['entities','ownership','risk','suspicious'],
-     detail:{title:'Acme Trading Ltd. (E-742) → First Union Bank', account:'···· 7689', badge:'High Risk Relationship',
-       fields:[{label:'Relationship Type',value:'Owns Account'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'Core Banking System'},{label:'First Observed',value:'Jan 14, 2022'},{label:'Last Observed',value:'May 06, 2025'},{label:'Confidence',value:'High · 92%'}],
-       why:'Account used in multiple high-risk transactions and structuring activity.'}},
-    {id:'account',  x:55,  y:230, icon:'⌂', label:'Bank Account', sub:'···· 3456', rel:'Owns', edgeType:'solid',
-     views:['entities','ownership'],
-     detail:{title:'Acme Trading Ltd. (E-742) → Bank Account', account:'···· 3456', badge:'Verified Link',
-       fields:[{label:'Relationship Type',value:'Owns Account'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'Core Banking System'},{label:'First Observed',value:'Jan 12, 2022'},{label:'Last Observed',value:'May 05, 2025'},{label:'Confidence',value:'High · 98%'}],
-       why:'Primary operating account; balance and activity reconcile to filed statements.'}},
-    {id:'address',  x:75,  y:330, icon:'⌖', label:'123 Harbor St.', sub:'Miami, FL', rel:'Registered Address', edgeType:'solid',
-     views:['entities','ownership'],
-     detail:{title:'Acme Trading Ltd. (E-742) → 123 Harbor St.', account:'Miami, FL (Residential)', badge:'Shared Address',
-       fields:[{label:'Relationship Type',value:'Registered Address'},{label:'Direction',value:'Attribute'},{label:'Source',value:'KYC System'},{label:'First Observed',value:'Jan 12, 2022'},{label:'Last Observed',value:'May 06, 2025'},{label:'Confidence',value:'High · 89%'}],
-       why:'Residential address shared with two further registered entities.'}},
-    {id:'deposit',  x:215, y:372, icon:'▥', label:'Cash Deposit', sub:'USD 120,000', rel:'Funds', edgeType:'solid',
-     views:['transactions'],
-     detail:{title:'Cash Deposit → Acme Trading Ltd. (E-742)', account:'USD 120,000 · Feb 03, 2022', badge:'Below Threshold',
-       fields:[{label:'Relationship Type',value:'Funds'},{label:'Direction',value:'Inbound'},{label:'Source',value:'Transaction Monitoring'},{label:'First Observed',value:'Feb 03, 2022'},{label:'Last Observed',value:'Feb 03, 2022'},{label:'Confidence',value:'High · 99%'}],
-       why:'One of twelve deposits structured just under the reporting threshold.'}},
-    {id:'payment',  x:345, y:390, icon:'$', label:'Payment', sub:'USD 2,400,000', rel:'Paid', edgeType:'suspicious', risk:true,
-     views:['transactions','risk','suspicious'],
-     detail:{title:'Acme Trading Ltd. (E-742) → Payment', account:'USD 2,400,000 · Feb 03, 2022', badge:'Suspicious Transaction',
-       fields:[{label:'Relationship Type',value:'Paid'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'Transaction Monitoring'},{label:'First Observed',value:'Feb 03, 2022'},{label:'Last Observed',value:'Feb 03, 2022'},{label:'Confidence',value:'High · 94%'}],
-       why:'Layered outbound payment moving aggregated deposits onward within 48 hours.'}},
-    {id:'msb',      x:420, y:335, icon:'◈', label:'Money Service Business', sub:'O-555', rel:'To', edgeType:'solid',
-     views:['entities','risk','suspicious'],
-     detail:{title:'Payment → Money Service Business', account:'O-555', badge:'High Risk Counterparty',
-       fields:[{label:'Relationship Type',value:'Counterparty'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'External Watchlist'},{label:'First Observed',value:'Feb 03, 2022'},{label:'Last Observed',value:'Feb 03, 2022'},{label:'Confidence',value:'Medium · 78%'}],
-       why:'Terminal hop of the traced chain; unlicensed in two operating jurisdictions.'}}
-  ],
-  relationshipDetail: {
-    title:'Acme Trading Ltd. (E-742) → First Union Bank',
-    account:'···· 7689', badge:'High Risk Relationship',
-    fields:[
-      {label:'Relationship Type', value:'Owns Account'},
-      {label:'Direction', value:'Outgoing'},
-      {label:'Source', value:'Core Banking System'},
-      {label:'First Observed', value:'Jan 14, 2022'},
-      {label:'Last Observed', value:'May 06, 2025'},
-      {label:'Confidence', value:'High · 92%'}
-    ],
-    why:'Account used in multiple high-risk transactions and structuring activity.'
-  },
-  suspiciousPath: [
-    {icon:'◐', label:'John D.', sub:'Director'},
-    {icon:'◆', label:'Acme Trading Ltd.', sub:'E-742', highlight:true},
-    {icon:'⌂', label:'First Union Bank', sub:'···· 7689'},
-    {icon:'$', label:'Payment', sub:'USD 2.4M', risk:true},
-    {icon:'◈', label:'Money Service Business', sub:'O-555'}
-  ],
-  pathEdgeLabels:['Controls','Owns','Paid','To'],
-  stats: [
-    {icon:'✳', color:'var(--govern)', title:'1.2K+', text:'Entities across people, orgs, accounts and more'},
-    {icon:'⛓', color:'var(--intel)', title:'8.7K+', text:'Relationships mapped and analyzed in real time'},
-    {icon:'▲', color:'var(--risk)', title:'320', text:'High risk paths identified in the last 7 days'},
-    {icon:'◎', color:'var(--confirm)', title:'100%', text:'Evidence-backed — every link traceable to its source'}
-  ],
-  capabilities: [
-    {icon:'⚑', title:'The graph does not act on its own.', text:'Every path it surfaces still passes through human authority before anything moves forward.'},
-    {icon:'⛓', title:'Every edge carries its evidence.', text:'Relationship type, direction, source system, and confidence travel with each connection — not just a line between two nodes.'},
-    {icon:'▲', title:'Suspicious paths are a chain, not a picture.', text:'Each hop is sourced and dated, ready to attach directly to a filing.'},
-    {icon:'↻', title:'One investigation, not a separate tool.', text:'This is the same graph the alert already opened — nothing here needs reconciling against another system.'}
-  ]
+
+/* Legend order is the render order of the swatches, so it stays
+   in step with the palette without a second list to maintain. */
+const N360_TYPES = {
+  entity:       {color:'#9B7CE0', icon:'▤', label:'Entity'},
+  person:       {color:'#B9A7F0', icon:'◈', label:'Person'},
+  account:      {color:'#34D399', icon:'⌂', label:'Account'},
+  transaction:  {color:'#E5484D', icon:'▥', label:'Transaction'},
+  organization: {color:'#4FB3FF', icon:'▤', label:'Organization'},
+  address:      {color:'#E0A550', icon:'⌖', label:'Address'}
 };
 
-const prismFabricUseCases = [
-  {
-    id:'crime', color:'var(--risk)', title:'Investigate financial crime',
-    text:'Map complex relationships and transaction flows, revealing hidden connections and suspicious patterns — graph visualization backed by evidence, not just pattern-matching.',
-    linkLabel:'See it in the Suspicious Path trace →', anchor:'howItWorksAnchorN360',
-    graphType:'crime'
-  },
-  {
-    id:'shell', color:'var(--govern)', title:'Uncover shell structures',
-    text:'Identify entities created or acquired to obscure ownership. Trace the path from your customer to the risk hidden behind it.',
-    linkLabel:'See it in Entity 360 →', anchor:null, nav:'entity360',
-    graphType:'shell'
-  },
-  {
-    id:'thirdparty', color:'var(--intel)', title:'Trace third-party risk',
-    text:'See beyond a single relationship to the network around it — shared directors, shared addresses, shared devices linking entities that look unrelated.',
-    linkLabel:'See it in the graph above →', anchor:'n360GraphAnchor',
-    graphType:'thirdparty'
-  },
-  {
-    id:'priority', color:'var(--gold)', title:'Prioritize the alerts that matter',
-    text:'Every suspicious path is scored and ranked, so investigators work the highest-risk connections first — not the loudest ones.',
-    linkLabel:'See it in AML/CFT →', anchor:null, nav:'aml',
-    graphType:'priority'
-  }
+const N360_EDGE_KINDS = {
+  rel:     {color:'#5C6890', dash:null,   label:'Relationship'},
+  resolve: {color:'#9B7CE0', dash:'2 5',  label:'Resolved identity'},
+  susp:    {color:'#E5484D', dash:'6 5',  label:'Suspicious'},
+  flow:    {color:'#34D399', dash:'6 5',  label:'Flow'}
+};
+
+/* viewBox 1180x660. Positions are authored rather than solved: the
+   composition carries the story (ownership up-left, money down-right),
+   which a force layout would scramble on every load. */
+const n360Nodes = [
+  {id:'northern',  x:150, y:80,  type:'organization', label:'Northern Holdings Ltd.', sub:'BVI · O-883',    juris:'BVI'},
+  {id:'maria',     x:450, y:75,  type:'person',       label:'Maria S.',               sub:'Director',            juris:'USA'},
+  {id:'global',    x:660, y:70,  type:'organization', label:'Global Imports Ltd.',    sub:'O-981',               juris:'USA'},
+  {id:'firstunion',x:1020,y:80,  type:'organization', label:'First Union Bank',       sub:'···· 7689', juris:'USA', risk:true},
+  {id:'bluewater', x:300, y:205, type:'organization', label:'Bluewater Mgmt Services',sub:'BVI · O-117',    juris:'BVI'},
+  {id:'offshore',  x:810, y:175, type:'organization', label:'Offshore Co.',           sub:'BVI',                 juris:'BVI'},
+  {id:'msb',       x:1045,y:215, type:'organization', label:'Money Service Business', sub:'O-555',               juris:'Multiple', risk:true},
+  {id:'everline',  x:420, y:320, type:'person',       label:'Everline Nominees',      sub:'Registered Agent',    juris:'BVI'},
+  {id:'acme',      x:655, y:320, type:'entity',       label:'Acme Trading Ltd.',      sub:'E-742',               juris:'Multiple', center:true},
+  {id:'payment',   x:880, y:320, type:'transaction',  label:'Payment',                sub:'USD 2,400,000',       juris:'Multiple', risk:true},
+  {id:'harbor',    x:140, y:350, type:'address',      label:'123 Harbor St.',         sub:'Miami, FL',           juris:'USA'},
+  {id:'pobox',     x:300, y:440, type:'address',      label:'PO Box 3175',            sub:'Road Town, Tortola',  juris:'BVI'},
+  {id:'tradeco',   x:640, y:460, type:'organization', label:'TradeCo LLC',            sub:'Delaware · O-219', juris:'Delaware'},
+  {id:'cashdep',   x:810, y:440, type:'transaction',  label:'Cash Deposit',           sub:'Feb 03, 2022',        juris:'USA', risk:true},
+  {id:'bizacct',   x:1055,y:380, type:'account',      label:'Business Account',       sub:'···· 3456 · $812,430', juris:'USA'},
+  {id:'peter',     x:140, y:545, type:'person',       label:'Peter K.',               sub:'Shareholder',         juris:'USA'},
+  {id:'acme2',     x:390, y:560, type:'entity',       label:'Acme Trading Ltd.',      sub:'E-742 · duplicate', juris:'USA'},
+  {id:'inv1',      x:555, y:590, type:'transaction',  label:'Invoice INV-00421',      sub:'USD 240,000',         juris:'Delaware'},
+  {id:'inv2',      x:725, y:590, type:'transaction',  label:'Invoice INV-00422',      sub:'USD 240,000',         juris:'Delaware'},
+  {id:'intlwire',  x:880, y:560, type:'transaction',  label:'International Wire',     sub:'USD 480,000',         juris:'Multiple', risk:true},
+  {id:'savacct',   x:1055,y:520, type:'account',      label:'Savings Account',        sub:'···· 8812 · $95,340', juris:'USA'}
 ];
 
-function miniFabricGraph(type, color){
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS,'svg');
-  svg.setAttribute('viewBox','0 0 100 60');
-  svg.classList.add('fabric-mini-svg');
-  function el(tag, attrs){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
-  const edges = [];
+/* `bend` is the perpendicular offset of the quadratic control point as a
+   fraction of the chord — the sign picks which side the curve bows to, so
+   two edges sharing endpoints never overlap. */
+const n360Edges = [
+  {from:'northern', to:'bluewater', label:'Owned 75%', kind:'rel', bend:-.16, views:['entities','ownership'],
+   src:'Corporate Registry', first:'Mar 03, 2022', last:'Apr 28, 2025', conf:'High · 91%',
+   why:'Majority holding places both entities under common control.'},
+  {from:'bluewater', to:'acme', label:'Beneficial Owner', kind:'rel', bend:.10, views:['entities','ownership','risk'],
+   src:'Open Source', first:'Aug 19, 2022', last:'Feb 11, 2025', conf:'Medium · 74%',
+   why:'Ownership routed through a jurisdiction with limited beneficial-ownership disclosure.'},
+  {from:'pobox', to:'bluewater', label:'Registered Address', kind:'rel', bend:-.12, views:['entities','locations'],
+   src:'Corporate Registry', first:'Aug 19, 2022', last:'Feb 11, 2025', conf:'High · 88%',
+   why:'A PO box shared by 14 further registered entities.'},
+  {from:'maria', to:'acme', label:'Director', kind:'rel', bend:.09, views:['entities','ownership'],
+   src:'KYC System', first:'Jan 12, 2022', last:'May 06, 2025', conf:'High · 96%',
+   why:'Board control of the subject entity, appointed at incorporation.'},
+  {from:'global', to:'acme', label:'Shared Owner', kind:'rel', bend:-.08, views:['entities','ownership'],
+   src:'Corporate Registry', first:'Mar 03, 2022', last:'Apr 28, 2025', conf:'High · 89%',
+   why:'Common ultimate owner links two nominally unrelated trading companies.'},
+  {from:'offshore', to:'acme', label:'Owns', kind:'rel', bend:.10, views:['entities','ownership','risk'],
+   src:'Open Source', first:'Aug 19, 2022', last:'Feb 11, 2025', conf:'Medium · 72%',
+   why:'Holding company in a high-risk jurisdiction with no disclosed operations.'},
+  {from:'everline', to:'offshore', label:'Nominee', kind:'rel', bend:-.14, views:['entities','ownership'],
+   src:'Open Source', first:'Aug 19, 2022', last:'Jan 30, 2025', conf:'Medium · 68%',
+   why:'Registered agent acting as nominee obscures the natural person behind the holding.'},
+  {from:'harbor', to:'acme2', label:'Registered Address', kind:'rel', bend:.12, views:['entities','locations'],
+   src:'KYC System', first:'Jan 12, 2022', last:'May 06, 2025', conf:'High · 89%',
+   why:'Residential address shared with two further registered entities.'},
+  {from:'peter', to:'acme2', label:'Shareholder', kind:'rel', bend:-.09, views:['entities','ownership'],
+   src:'KYC System', first:'Jan 14, 2022', last:'May 06, 2025', conf:'High · 94%',
+   why:'Holds 25% of the duplicate registration, undisclosed on the primary record.'},
+  {from:'acme2', to:'acme', label:'Same Identity', kind:'resolve', bend:.18, views:['entities','ownership','risk','locations'],
+   src:'PRISM Entity Resolution', first:'Jan 14, 2022', last:'May 06, 2025', conf:'High · 93%',
+   why:'Two registrations resolve to one entity. The shareholder and address on the duplicate never appeared on the primary file.'},
+  {from:'acme', to:'firstunion', label:'Controls', kind:'susp', bend:-.10, views:['entities','risk'], primary:true,
+   src:'Core Banking System', first:'Jan 14, 2022', last:'May 06, 2025', conf:'High · 92%',
+   why:'Account used in multiple high-risk transactions and structuring activity.'},
+  {from:'cashdep', to:'acme', label:'Funds', kind:'susp', bend:.08, views:['transactions','risk'],
+   src:'Transaction Monitoring', first:'Feb 03, 2022', last:'Feb 03, 2022', conf:'High · 99%',
+   why:'One of twelve deposits structured just under the reporting threshold.'},
+  {from:'acme', to:'payment', label:'Paid', kind:'susp', bend:-.07, views:['transactions','risk'],
+   src:'Transaction Monitoring', first:'Feb 03, 2022', last:'Feb 03, 2022', conf:'High · 94%',
+   why:'Layered outbound payment moving aggregated deposits onward within 48 hours.'},
+  {from:'payment', to:'msb', label:'To', kind:'susp', bend:-.12, views:['transactions','risk'],
+   src:'External Watchlist', first:'Feb 03, 2022', last:'Feb 03, 2022', conf:'Medium · 78%',
+   why:'Counterparty unlicensed in two of its operating jurisdictions.'},
+  {from:'acme', to:'intlwire', label:'Paid', kind:'susp', bend:.14, views:['transactions','risk'],
+   src:'Transaction Monitoring', first:'Feb 03, 2022', last:'Feb 03, 2022', conf:'High · 91%',
+   why:'Cross-border wire settled the same day the deposits cleared.'},
+  {from:'intlwire', to:'msb', label:'Settles', kind:'susp', bend:.20, views:['transactions','risk','flows'],
+   src:'External Watchlist', first:'Feb 03, 2022', last:'Feb 03, 2022', conf:'Medium · 76%',
+   why:'Terminal hop of the traced chain.'},
+  {from:'payment', to:'bizacct', label:'Moves To', kind:'flow', bend:-.10, views:['flows','transactions'],
+   src:'Core Banking System', first:'Feb 03, 2022', last:'Feb 03, 2022', conf:'High · 97%',
+   why:'Funds land in an operating account before onward transfer.'},
+  {from:'bizacct', to:'savacct', label:'Moves To', kind:'flow', bend:-.14, views:['flows'],
+   src:'Core Banking System', first:'Feb 03, 2022', last:'Feb 04, 2022', conf:'High · 98%',
+   why:'Same-day sweep into savings breaks the chain across two products.'},
+  {from:'acme', to:'tradeco', label:'Counterparty', kind:'rel', bend:.08, views:['entities','transactions'],
+   src:'Core Banking System', first:'Nov 02, 2021', last:'Apr 22, 2025', conf:'High · 90%',
+   why:'Trading counterparty presenting invoices against the same shipment.'},
+  {from:'tradeco', to:'inv1', label:'Presents', kind:'rel', bend:-.10, views:['transactions'],
+   src:'Trade Finance', first:'Feb 02, 2022', last:'Feb 02, 2022', conf:'High · 95%',
+   why:'Invoice value matched to a second invoice for the same goods.'},
+  {from:'tradeco', to:'inv2', label:'Presents', kind:'rel', bend:.10, views:['transactions'],
+   src:'Trade Finance', first:'Feb 02, 2022', last:'Feb 02, 2022', conf:'High · 95%',
+   why:'Duplicate invoicing: identical value, same goods, two instruments.'}
+];
 
-  if(type==='crime'){
-    const pts = [[20,15],[50,30],[80,15],[50,48]];
-    const pairs = [[0,1],[1,2],[1,3]];
-    pairs.forEach(([a,b],i)=>{
-      const e2 = el('line',{x1:pts[a][0],y1:pts[a][1],x2:pts[b][0],y2:pts[b][1], stroke: i===2?'var(--risk)':'#443d70', 'stroke-width':1.2});
-      if(i===2) e2.setAttribute('stroke-dasharray','3 3');
-      svg.appendChild(e2); edges.push(e2);
-    });
-    pts.forEach((p,i)=> svg.appendChild(el('circle',{cx:p[0],cy:p[1],r:i===3?5:4, fill: i===3?'var(--risk)':color, opacity:0.85})));
-  }
-  else if(type==='shell'){
-    [22,15,8].forEach((r,i)=> svg.appendChild(el('circle',{cx:50,cy:30,r, fill:'none', stroke:color, 'stroke-width':1, opacity:0.3+i*0.2})));
-    svg.appendChild(el('circle',{cx:50,cy:30,r:3, fill:color}));
-  }
-  else if(type==='thirdparty'){
-    const pts=[[20,20],[20,42],[80,20],[80,42],[50,31]];
-    [[0,4],[1,4],[2,4],[3,4]].forEach(([a,b])=>{
-      const e2 = el('line',{x1:pts[a][0],y1:pts[a][1],x2:pts[b][0],y2:pts[b][1], stroke:'#443d70','stroke-width':1});
-      svg.appendChild(e2); edges.push(e2);
-    });
-    const sharedEdge = el('line',{x1:pts[0][0],y1:pts[0][1],x2:pts[1][0],y2:pts[1][1], stroke:color,'stroke-width':1.3,'stroke-dasharray':'2 3'});
-    svg.appendChild(sharedEdge); edges.push(sharedEdge);
-    pts.forEach((p,i)=> svg.appendChild(el('circle',{cx:p[0],cy:p[1],r:i===4?5:3.5, fill:i===4?color:'#8A97C7', opacity:0.85})));
-  }
-  else if(type==='priority'){
-    [{x:15,h:14,c:color},{x:37,h:26,c:color},{x:59,h:20,c:'#443d70'},{x:81,h:10,c:'#443d70'}].forEach(b=>{
-      svg.appendChild(el('rect',{x:b.x-7,y:48-b.h,width:14,height:b.h,rx:2, fill:b.c, opacity: b.c===color?0.9:0.4}));
-    });
-  }
+/* What the graph can do. Deliberately capability claims, not figures and not
+   guarantees — the figures live once in Network at a Glance below, and the
+   guarantees once in How this graph stays trustworthy. */
+const n360Capabilities = [
+  {icon:'◈', color:'var(--govern)',  title:'Resolve duplicate identities',
+   text:'Two registrations for the same company collapse into one entity — keeping the shareholder and address that only ever appeared on the duplicate.'},
+  {icon:'⛓', color:'var(--intel)',   title:'Trace the money hop by hop',
+   text:'Follow funds across accounts, products and jurisdictions as one continuous chain, each hop sourced and dated.'},
+  {icon:'✳', color:'var(--agentic)', title:'See through ownership layers',
+   text:'Nominees, holding companies and registered agents unfold until the natural person behind the structure is visible.'},
+  {icon:'◎', color:'var(--gold)',    title:'Ask six questions of one graph',
+   text:'Entities, transactions, ownership, risk, flows and locations are lenses over the same evidence — never separate exports.'}
+];
 
-  const dots = edges.map(edge=>{
-    const dot = el('circle',{r:1.6, fill:color, opacity:0.9});
-    svg.appendChild(dot);
-    return {edge, dot};
-  });
-  return {svg, dots};
-}
+/* Stated once, here, and rendered only in the lower band. */
+const n360Stats = [
+  {icon:'✳', color:'var(--govern)',  value:'1.2K+', text:'Entities across people, orgs, accounts and more'},
+  {icon:'⛓', color:'var(--intel)',   value:'8.7K+', text:'Relationships mapped and analyzed in real time'},
+  {icon:'▲', color:'var(--risk)',    value:'320',   text:'High risk paths identified in the last 7 days'},
+  {icon:'◎', color:'var(--confirm)', value:'100%',  text:'Evidence-backed — every link traceable to its source'}
+];
 
-function renderFabricGrid(){
-  const grid = document.getElementById('fabricGrid');
-  grid.innerHTML = prismFabricUseCases.map(u=>`
-    <div class="fabric-card" data-id="${u.id}" style="--fc:${u.color};">
-      <div class="fabric-icon" id="ficon-${u.id}"></div>
-      <div class="fabric-title">${u.title}</div>
-      <div class="fabric-drawer"><p>${u.text}</p><a class="fabric-link" data-anchor="${u.anchor||''}" data-goto="${u.nav||''}">${u.linkLabel}</a></div>
-    </div>
-  `).join('');
+const n360Path = [
+  {icon:'◈', label:'Peter K.',               sub:'Shareholder',              date:'Jan 14, 2022'},
+  {icon:'▤', label:'Acme Trading Ltd.',      sub:'E-742',                    date:'Jan 14, 2022', highlight:true},
+  {icon:'▤', label:'First Union Bank',       sub:'···· 7689', date:'Feb 02, 2022'},
+  {icon:'▥', label:'Cash Deposit',           sub:'12 × under threshold', date:'Feb 02, 2022', risk:true},
+  {icon:'▥', label:'Payment',                sub:'USD 2.4M',                 date:'Feb 03, 2022', risk:true},
+  {icon:'▥', label:'International Wire',     sub:'USD 480,000',              date:'Feb 03, 2022', risk:true},
+  {icon:'▤', label:'Money Service Business', sub:'O-555',                    date:'Feb 03, 2022'}
+];
+const n360PathEdges = ['Controls','Owns','Funds','Aggregates','Paid','Settles'];
 
-  const pulseFns = [];
-  prismFabricUseCases.forEach(u=>{
-    const holder = document.getElementById('ficon-'+u.id);
-    const {svg, dots} = miniFabricGraph(u.graphType, u.color);
-    holder.appendChild(svg);
-    dots.forEach(({edge,dot})=>{
-      if(!edge.getTotalLength) return;
-      const len = edge.getTotalLength();
-      const duration = 1600 + Math.random()*900;
-      const start = performance.now() - Math.random()*duration;
-      function step(now){
-        const frac = ((now-start)%duration)/duration;
-        const pt = edge.getPointAtLength(frac*len);
-        dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
-        requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    });
-  });
+const n360Exposure = [
+  {label:'Critical', pct:2,  color:'#E5484D'},
+  {label:'High',     pct:14, color:'#E0724C'},
+  {label:'Medium',   pct:34, color:'#E0A550'},
+  {label:'Low',      pct:50, color:'#34D399'}
+];
 
-  grid.querySelectorAll('.fabric-card').forEach(card=>{
-    card.addEventListener('click', (e)=>{
-      if(e.target.classList.contains('fabric-link')) return;
-      const wasOpen = card.classList.contains('open');
-      grid.querySelectorAll('.fabric-card').forEach(c=>c.classList.remove('open'));
-      if(!wasOpen) card.classList.add('open');
-    });
-  });
-  grid.querySelectorAll('.fabric-link').forEach(a=>{
-    a.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      const anchor = a.dataset.anchor;
-      const nav = a.dataset.goto;
-      if(nav){ goToPage(nav); }
-      else if(anchor){ document.getElementById(anchor).scrollIntoView({behavior:'smooth', block:'start'}); }
-    });
-  });
-}
+const n360Trust = [
+  {icon:'⚑', title:'The graph does not act on its own.', text:'Every path it surfaces still passes through human authority before anything moves forward.'},
+  {icon:'⛓', title:'Every edge carries its evidence.', text:'Relationship type, direction, source system, and confidence travel with each connection — not just a line between two nodes.'},
+  {icon:'▲', title:'Suspicious paths are a chain, not a picture.', text:'Each hop is sourced and dated, ready to attach directly to a filing.'},
+  {icon:'↻', title:'One investigation, not a separate tool.', text:'This is the same graph the alert already opened — nothing here needs reconciling against another system.'}
+];
+
+const N360_JURISDICTIONS = ['All Jurisdictions','USA','BVI','Delaware','Multiple'];
 
 function renderNetwork360(){
   const c = document.getElementById('page-network360');
-  const d = network360Data;
+  const nodeById = Object.fromEntries(n360Nodes.map(n=>[n.id,n]));
+
   c.innerHTML = `
-    <div class="e360-body">
+    <div class="e360-body n360-body">
       <div class="e360-narrative">
         <div class="eyebrow" style="color:var(--govern);">NETWORK 360</div>
-        <h2><span class="hl" style="color:var(--govern);">Interactive</span> intelligence graphics that reveal the network behind the risk.</h2>
-        <p class="lede">Create dynamic views of the entities, relationships and risk that matter to your institution. Uncover contextual, traceable insight with <b style="color:var(--text);">PRISM Fabric</b>.</p>
-        <div class="fabric-grid" id="fabricGrid"></div>
-        <div class="cta-row" style="margin-top:22px;">
-          <a class="e360-toggle-btn active" id="n360BtnExplore" style="background:linear-gradient(90deg,var(--govern),#6d5bb0); color:#050914;">Explore Network 360 →</a>
-          <a class="e360-toggle-btn" id="n360BtnHow">How it works →</a>
+        <h2>See the connections.<br><span class="hl" style="color:var(--govern);">Expose the risk.</span></h2>
+        <p class="lede">Explore entities, relationships and flows across people, organizations, accounts, transactions, devices and addresses. <b style="color:var(--text);">PRISM Fabric</b> brings the full picture into focus so you can act with confidence.</p>
+        ${n360Capabilities.map(b=>`
+          <div class="narrative-block">
+            <div class="nb-icon" style="color:${b.color};">${gi(b.icon)}</div>
+            <div><h4>${b.title}</h4><p>${b.text}</p></div>
+          </div>`).join('')}
+        <div class="cta-row" style="margin-top:24px;">
+          <a class="e360-toggle-btn active" id="n360BtnExplore" style="background:linear-gradient(90deg,var(--govern),#6d5bb0); color:#050914;">Explore Network 360 &rarr;</a>
+          <a class="e360-toggle-btn" id="n360BtnHow">How it works &rarr;</a>
         </div>
       </div>
 
-      <div class="e360-main" style="position:relative;">
-        <div class="n360-tabs">
+      <div class="e360-main n360-main">
+        <div class="n360-toolbar">
           <span class="n360-tab-label">View</span>
-          <span data-view="entities" class="active">Entities</span><span data-view="transactions">Transactions</span><span data-view="ownership">Ownership</span><span data-view="risk" data-tone="risk">Risk</span><span data-view="suspicious" data-tone="risk">Suspicious Path</span>
-          <span class="n360-filters">⚙ Filters · 3</span>
+          <div class="n360-views">
+            <span data-view="entities">Entities</span><span data-view="transactions">Transactions</span><span data-view="ownership">Ownership</span><span data-view="risk" data-tone="risk" class="active">Risk</span><span data-view="flows">Flows</span><span data-view="locations">Locations</span>
+          </div>
+          <div class="n360-controls">
+            <label class="n360-select"><select id="n360Type" aria-label="Filter by node type">
+              <option value="">All Types</option>
+              ${Object.entries(N360_TYPES).map(([k,t])=>`<option value="${k}">${t.label}</option>`).join('')}
+            </select></label>
+            <label class="n360-select"><select id="n360Juris" aria-label="Filter by jurisdiction">
+              ${N360_JURISDICTIONS.map((j,i)=>`<option value="${i?j:''}">${j}</option>`).join('')}
+            </select></label>
+            <span class="n360-filters" id="n360FilterCount">&#9662; Filters &middot; 1</span>
+            <span class="n360-iconbtn" id="n360SearchBtn" role="button" tabindex="0" title="Search the graph">&#9906;</span>
+            <span class="n360-iconbtn" id="n360ExpandBtn" role="button" tabindex="0" title="Expand the graph">&#10530;</span>
+            <span class="n360-iconbtn" id="n360LockBtn" role="button" tabindex="0" title="Lock the current selection">&#128275;</span>
+          </div>
+          <input id="n360Search" class="n360-searchbox" type="search" placeholder="Search entities, accounts, addresses&hellip;" hidden>
         </div>
 
-        <div class="n360-graph-area" id="n360GraphAnchor">
-          <svg id="networkGraph" viewBox="0 0 640 430"></svg>
-          <div class="rel-detail-card" id="relDetailCard">
-            <div class="rd-head">
-              <span>Relationship Details</span>
-              <span class="rd-close">×</span>
-            </div>
+        <div class="n360-stage" id="n360GraphAnchor">
+          <div class="n360-canvas">
+            <svg id="networkGraph" viewBox="0 0 1180 660" role="img" aria-label="Network graph for Acme Trading Ltd. E-742"></svg>
+            <div class="n360-count" id="n360Count"></div>
+          </div>
+          <aside class="n360-inspector" id="relDetailCard">
+            <div class="rd-head"><span>Relationship Details</span><span class="rd-close" id="n360Close">&times;</span></div>
             <div class="rd-title" id="rdTitle"></div>
-            <div class="rd-account" id="rdAccount"></div>
-            <span class="rd-badge" id="rdBadge"></span>
+            <div class="rd-badge-row" id="rdBadge"></div>
             <div class="rd-fields" id="rdFields"></div>
             <div class="rd-why-title">Why it matters</div>
             <div class="rd-why" id="rdWhy"></div>
-            <a class="panel-link">View evidence (8) →</a>
-          </div>
+            <a class="rd-evidence" id="rdEvidence">View evidence (12) &rarr;</a>
+            <div class="rd-actions">
+              <span title="Open as table">&#9638;</span><span title="Export">&#9993;</span><span title="History">&#9201;</span><span title="Share">&#10688;</span>
+            </div>
+          </aside>
         </div>
 
         <div class="n360-legend">
-          <span><i style="background:var(--govern);"></i>Entity</span>
-          <span><i style="background:var(--intel);"></i>Person</span>
-          <span><i style="background:#4FB3FF;"></i>Account</span>
-          <span><i style="background:var(--risk);"></i>Transaction</span>
-          <span><i style="background:var(--gold);"></i>Address</span>
-          <span class="leg-line">— Relationship</span>
-          <span class="leg-line leg-susp">- - Suspicious</span>
-          <span class="leg-line">→ Flow</span>
+          ${Object.entries(N360_TYPES).map(([k,t])=>`<span><i style="background:${t.color};"></i>${t.label}</span>`).join('')}
+          <span class="leg-line">&#8594; Relationship</span>
+          <span class="leg-line leg-susp">--&#8594; Suspicious</span>
+          <span class="leg-line" style="color:var(--confirm);">--&#8594; Flow</span>
         </div>
-
       </div>
     </div>
 
-    <div class="e360-lower" id="howItWorksAnchorN360">
-        <div class="section-divider">
-          <span class="sd-title" style="color:var(--risk);">⚡ Suspicious Path (5 hops)</span>
-          <span class="sd-sub">The exact chain PRISM traced from director to money service business</span>
-        </div>
-        <div class="path-strip">
-          ${d.suspiciousPath.map((p,i)=>`
-            ${i>0 ? `<span class="path-arrow">${d.pathEdgeLabels[i-1]} →</span>` : ''}
-            <div class="path-node ${p.highlight?'path-highlight':''} ${p.risk?'path-risk':''}">
-              <div class="path-icon">${gi(p.icon)}</div>
-              <div class="path-label">${p.label}</div>
-              <div class="path-sub">${p.sub}</div>
-            </div>
-          `).join('')}
-        </div>
+    <div class="e360-lower n360-lower" id="howItWorksAnchorN360">
+      <div class="n360-lower-grid">
+        <section class="n360-panel">
+          <div class="n360-panel-head" style="color:var(--risk);">${gi('⚡')} Suspicious Path (7 hops)</div>
+          <div class="n360-panel-sub">The exact chain PRISM traced from shareholder to money service business</div>
+          <div class="n360-path">
+            ${n360Path.map((p,i)=>`
+              ${i>0 ? `<span class="path-arrow">${n360PathEdges[i-1]} &rarr;</span>` : ''}
+              <div class="path-node ${p.highlight?'path-highlight':''} ${p.risk?'path-risk':''}">
+                <div class="path-icon">${gi(p.icon)}</div>
+                <div class="path-label">${p.label}</div>
+                <div class="path-sub">${p.sub}</div>
+                <div class="path-date">${p.date}</div>
+              </div>`).join('')}
+          </div>
+          <a class="n360-panel-cta" id="n360PathCta">View full path with evidence &rarr;</a>
+        </section>
 
-        <div class="stat-strip" style="margin-top:28px;">
-          ${d.stats.map(s=>`
-            <div class="stat-card">
-              <div class="stat-icon" style="color:${s.color};">${gi(s.icon)}</div>
-              <div><div class="stat-title" style="color:${s.color};">${s.title}</div><div class="stat-text">${s.text}</div></div>
-            </div>`).join('')}
-        </div>
+        <section class="n360-panel">
+          <div class="n360-panel-head" style="color:var(--govern);">${gi('⚡')} Network at a Glance</div>
+          <div class="n360-glance">
+            ${n360Stats.map(s=>`
+              <div class="n360-glance-tile">
+                <div class="n360-glance-icon" style="color:${s.color};">${gi(s.icon)}</div>
+                <div class="n360-glance-num" style="color:${s.color};">${s.value}</div>
+                <div class="n360-glance-label">${s.text}</div>
+              </div>`).join('')}
+          </div>
+          <div class="n360-expo-label">Risk Exposure Distribution</div>
+          <div class="n360-expo-bar">
+            ${n360Exposure.map(e=>`<span style="width:${e.pct}%; background:${e.color};" title="${e.label} ${e.pct}%"></span>`).join('')}
+          </div>
+          <div class="n360-expo-key">
+            ${n360Exposure.map(e=>`<span><i style="background:${e.color};"></i>${e.pct}% ${e.label}</span>`).join('')}
+          </div>
+        </section>
 
-        <div class="cap-section">
-          <div class="cap-header">How this graph stays trustworthy</div>
-          ${d.capabilities.map(row=>`
+        <section class="n360-panel">
+          <div class="n360-panel-head" style="color:var(--gold);">${gi('◎')} How this graph stays trustworthy</div>
+          ${n360Trust.map(row=>`
             <div class="cap-row">
               <div class="cap-icon">${gi(row.icon)}</div>
               <div class="cap-text"><b>${row.title}</b><p>${row.text}</p></div>
             </div>`).join('')}
-        </div>
+        </section>
+      </div>
     </div>
+
     <div class="domain-footer" style="display:flex; justify-content:space-between;">
-      <a href="#entity360" data-nav="entity360">← Previous: Entity 360</a>
-      <a href="#investigations" data-nav="investigations">Next: Investigate &amp; Act →</a>
+      <a href="#entity360" data-nav="entity360">&larr; Previous: Entity 360</a>
+      <a href="#investigations" data-nav="investigations">Next: Investigate &amp; Act &rarr;</a>
     </div>
   `;
 
@@ -2709,187 +2789,325 @@ function renderNetwork360(){
     a.addEventListener('click', (e)=>{ e.preventDefault(); goToPage(a.dataset.nav); });
   });
 
+  const graph = drawNetworkGraph(nodeById);
+  wireNetwork360(c, graph, nodeById);
+
   document.getElementById('n360BtnExplore').addEventListener('click', ()=>{
     document.getElementById('n360GraphAnchor').scrollIntoView({behavior:'smooth', block:'start'});
   });
   document.getElementById('n360BtnHow').addEventListener('click', ()=>{
     document.getElementById('howItWorksAnchorN360').scrollIntoView({behavior:'smooth', block:'start'});
   });
-  const card = document.getElementById('relDetailCard');
-  document.querySelector('.rd-close').addEventListener('click', ()=>{
-    card.style.display = 'none';
+  document.getElementById('n360PathCta').addEventListener('click', ()=>{
+    document.getElementById('n360GraphAnchor').scrollIntoView({behavior:'smooth', block:'start'});
   });
-
-  const {svg, items} = drawNetworkGraph(d);
-
-  /* ---- Relationship Details reads from whichever edge is selected ---- */
-  function showDetail(detail){
-    document.getElementById('rdTitle').textContent   = detail.title;
-    document.getElementById('rdAccount').textContent = detail.account;
-    document.getElementById('rdBadge').textContent   = detail.badge;
-    document.getElementById('rdFields').innerHTML    = detail.fields
-      .map(f=>`<div><span class="lbl">${f.label}</span><span class="val">${f.value}</span></div>`).join('');
-    document.getElementById('rdWhy').textContent     = detail.why;
-    card.style.display = '';
-  }
-  showDetail(d.relationshipDetail);
-
-  /* ---- Focus: hover previews a relationship, click pins it ---- */
-  let pinned = null;
-  function focusOn(entry){
-    svg.classList.add('is-focused');
-    items.forEach(it=> it.parts.forEach(p=> p.classList.toggle('is-lit', it === entry)));
-  }
-  function clearFocus(){
-    svg.classList.remove('is-focused');
-    items.forEach(it=> it.parts.forEach(p=> p.classList.remove('is-lit')));
-  }
-  items.forEach(entry=>{
-    const {nodeG, node} = entry;
-    nodeG.addEventListener('mouseenter', ()=>{ if(!pinned) focusOn(entry); });
-    nodeG.addEventListener('mouseleave', ()=>{ if(!pinned) clearFocus(); });
-    const select = ()=>{
-      /* clicking the pinned node again releases it, so there is always a way
-         back to the whole graph without hunting for a close button */
-      if(pinned === entry){ pinned = null; clearFocus(); nodeG.classList.remove('is-selected'); return; }
-      if(pinned) pinned.nodeG.classList.remove('is-selected');
-      pinned = entry; nodeG.classList.add('is-selected');
-      focusOn(entry); showDetail(node.detail);
-    };
-    nodeG.addEventListener('click', select);
-    nodeG.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); select(); } });
-  });
-
-  /* ---- VIEW tabs filter the graph to one slice ---- */
-  const tabs = [...c.querySelectorAll('.n360-tabs span[data-view]')];
-  const emptyNote = document.createElement('div');
-  emptyNote.className = 'n360-empty';
-  emptyNote.style.display = 'none';
-  document.getElementById('n360GraphAnchor').appendChild(emptyNote);
-
-  function applyView(view){
-    let shown = 0;
-    items.forEach(it=>{
-      const inView = (it.node.views || []).includes(view);
-      if(inView) shown++;
-      it.parts.forEach(p=> p.classList.toggle('is-out', !inView));
-    });
-    /* a pinned selection that just left the view would keep the graph dimmed
-       with nothing lit, so release it */
-    if(pinned && !(pinned.node.views || []).includes(view)){
-      pinned.nodeG.classList.remove('is-selected'); pinned = null; clearFocus();
-    }
-    emptyNote.textContent = `${shown} of ${items.length} relationships in this view`;
-    emptyNote.style.display = '';
-  }
-  tabs.forEach(tab=>{
-    tab.addEventListener('click', ()=>{
-      tabs.forEach(t=> t.classList.remove('active'));
-      tab.classList.add('active');
-      applyView(tab.dataset.view);
-    });
-  });
-  applyView('entities');
-
-  renderFabricGrid();
 }
 
-function drawNetworkGraph(d){
+function drawNetworkGraph(nodeById){
   const svg = document.getElementById('networkGraph');
   const NS = 'http://www.w3.org/2000/svg';
-  function el(tag, attrs){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+  const el = (tag, attrs)=>{ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; };
   svg.innerHTML = '';
+
   const defs = el('defs',{});
   defs.innerHTML = `
     <radialGradient id="n360Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2E2650"/><stop offset="100%" stop-color="#14101F"/></radialGradient>
     <radialGradient id="n360CenterGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#4A3D80"/><stop offset="70%" stop-color="#241C3F"/><stop offset="100%" stop-color="#14101F"/></radialGradient>
     <filter id="n360Soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <filter id="n360Strong" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+    <filter id="n360Strong" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    ${Object.entries(N360_EDGE_KINDS).map(([k,v])=>`
+      <marker id="n360Arrow-${k}" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+        <path d="M0 0 L9 4.5 L0 9 z" fill="${v.color}"/>
+      </marker>`).join('')}`;
   svg.appendChild(defs);
 
-  const cx=260, cy=220;
-  /* separate layers so wires never paint over node discs or labels */
   const gEdges = el('g',{}), gLabels = el('g',{}), gDots = el('g',{}), gNodes = el('g',{});
   [gEdges, gLabels, gDots, gNodes].forEach(g=> svg.appendChild(g));
 
-  /* every rendered piece of a node registers together, so focus and view
-     filtering can light or hide a relationship as one unit */
-  const items = [];
+  const R = n=> n.center ? 40 : 25;
 
-  d.nodes.forEach(n=>{
-    const susp = n.edgeType === 'suspicious';
-    const path = `M${cx},${cy} L${n.x},${n.y}`;
-    const parts = [];
-
-    const wire = el('path',{ d:path, class:'n360-item', stroke: susp?'var(--risk)':'#3a3560', 'stroke-width':1.5, opacity:0.55, fill:'none' });
-    const current = el('path',{ d:path, class:'n360-item n360-current'+(susp?' is-risk':''), stroke: susp?'var(--risk)':'var(--govern)', 'stroke-width':2.1, fill:'none' });
-    gEdges.appendChild(wire); gEdges.appendChild(current);
-    parts.push(wire, current);
-
-    if(n.rel){
-      const t = el('text',{x:(cx+n.x)/2, y:(cy+n.y)/2-4, class:'n360-item', 'text-anchor':'middle','font-size':'8.5','font-family':'Inter, sans-serif', fill: susp?'var(--risk)':'var(--dim2)', 'font-weight':'600'});
-      t.textContent = n.rel;
-      gLabels.appendChild(t); parts.push(t);
-    }
-
-    const g = el('g',{transform:`translate(${n.x},${n.y})`, class:'n360-item n360-node', tabindex:'0', role:'button'});
-    const r = 24;
-    g.appendChild(el('circle',{r, class:'node-ring', fill:'url(#n360Glow)', stroke: (n.risk||susp)?'var(--risk)':'#443d70', 'stroke-width':1.3, filter:'url(#n360Soft)'}));
-    const icon = el('text',{x:0,y:5,'text-anchor':'middle','font-size':'14', fill: n.risk?'var(--risk)':'var(--govern)'}); icon.textContent=n.icon; g.appendChild(icon);
-    const t1 = el('text',{x:0,y:r+13,'text-anchor':'middle','font-size':'9','font-family':'Inter, sans-serif', fill:'var(--text)','font-weight':'600'}); t1.textContent=n.label; g.appendChild(t1);
-    const t2 = el('text',{x:0,y:r+24,'text-anchor':'middle','font-size':'8','font-family':'Inter, sans-serif', fill:'var(--dim)'}); t2.textContent=n.sub; g.appendChild(t2);
-    /* one generous invisible disc takes the pointer, so the thin ring and the
-       two label lines are not each a separate fiddly hit target */
-    g.appendChild(el('circle',{r:r+16, class:'node-hit'}));
-    gNodes.appendChild(g); parts.push(g);
-
-    const dot = el('circle', {r:2.6, class:'n360-item', fill: susp?'var(--risk)':'var(--govern)', filter:'url(#n360Strong)'});
-    gDots.appendChild(dot); parts.push(dot);
-
-    items.push({node:n, parts, nodeG:g, edge:wire, dot});
-  });
-
-  /* faded ghost nodes at the edges — implies the network extends further */
-  [[30,150],[560,235],[30,400],[555,55]].forEach(([x,y])=>{
-    const g = el('g',{transform:`translate(${x},${y})`, opacity:0.25});
-    g.appendChild(el('circle',{r:14, fill:'url(#n360Glow)', stroke:'#443d70', 'stroke-width':1}));
-    const icon = el('text',{x:0,y:4,'text-anchor':'middle','font-size':'11', fill:'var(--dim2)'}); icon.textContent='◐'; g.appendChild(icon);
-    gNodes.appendChild(g);
-  });
-
-  const cg = el('g',{transform:`translate(${cx},${cy})`});
-  cg.appendChild(el('circle',{r:52, fill:'none', stroke:'var(--govern)', 'stroke-width':1.3, class:'n360-breathe', opacity:0.3}));
-  cg.appendChild(el('circle',{r:38, fill:'url(#n360CenterGlow)', stroke:'var(--govern)', 'stroke-width':2, filter:'url(#n360Soft)'}));
-  const ct1 = el('text',{x:0,y:-2,'text-anchor':'middle','font-size':'13','font-family':'Inter, sans-serif', fill:'var(--text)','font-weight':'700'}); ct1.textContent='AT'; cg.appendChild(ct1);
-  const ct2 = el('text',{x:0,y:13,'text-anchor':'middle','font-size':'8','font-family':'Inter, sans-serif', fill:'var(--dim)'}); ct2.textContent=d.center.sub; cg.appendChild(ct2);
-  gNodes.appendChild(cg);
-
-  if(!document.getElementById('n360BreatheStyle')){
-    const styleTag = document.createElement('style');
-    styleTag.id = 'n360BreatheStyle';
-    styleTag.textContent = `.n360-breathe{ animation: n360breathe 2.8s ease-in-out infinite; } @keyframes n360breathe{ 0%,100%{opacity:.2; r:52;} 50%{opacity:.45; r:58;} }`;
-    document.head.appendChild(styleTag);
+  /* Quadratic through a control point pushed perpendicular to the chord, with
+     both ends pulled back to the node rim so the curve never runs under a disc
+     or its arrowhead. */
+  function geometry(e){
+    const a = nodeById[e.from], b = nodeById[e.to];
+    const dx = b.x-a.x, dy = b.y-a.y, len = Math.hypot(dx,dy) || 1;
+    const ux = dx/len, uy = dy/len;
+    const x0 = a.x + ux*(R(a)+4), y0 = a.y + uy*(R(a)+4);
+    const x1 = b.x - ux*(R(b)+9), y1 = b.y - uy*(R(b)+9);
+    const bend = e.bend || 0;
+    const cx = (x0+x1)/2 - dy*bend, cy = (y0+y1)/2 + dx*bend;
+    /* midpoint of a quadratic at t = 0.5 */
+    return {x0,y0,x1,y1,cx,cy, mx:0.25*x0+0.5*cx+0.25*x1, my:0.25*y0+0.5*cy+0.25*y1,
+            d:`M${x0.toFixed(1)},${y0.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`};
   }
 
-  /* travelling charge on top of the dashed flow — skipped when the visitor has
-     asked for reduced motion, since this one cannot be disabled from CSS */
+  const edgeItems = n360Edges.map(e=>{
+    const g = geometry(e);
+    const kind = N360_EDGE_KINDS[e.kind];
+    const parts = [];
+
+    const wire = el('path',{d:g.d, class:'n360-item n360-wire', stroke:kind.color, 'stroke-width':e.primary?2:1.4,
+      fill:'none', opacity:e.kind==='rel'?0.5:0.62, 'marker-end':`url(#n360Arrow-${e.kind})`});
+    if(kind.dash) wire.setAttribute('stroke-dasharray', kind.dash);
+    gEdges.appendChild(wire); parts.push(wire);
+
+    const current = el('path',{d:g.d, class:'n360-item n360-current'+(e.kind==='susp'?' is-risk':''),
+      stroke:kind.color, 'stroke-width':e.primary?2.6:2, fill:'none'});
+    gEdges.appendChild(current); parts.push(current);
+
+    /* a wide transparent path is the pointer target — a 1.4px stroke is not */
+    const hit = el('path',{d:g.d, class:'n360-edge-hit', stroke:'transparent', 'stroke-width':18, fill:'none'});
+    gEdges.appendChild(hit);
+
+    const label = el('text',{x:g.mx.toFixed(1), y:(g.my-5).toFixed(1), class:'n360-item n360-edge-label',
+      'text-anchor':'middle', fill:e.kind==='rel'?'var(--dim2)':kind.color});
+    label.textContent = e.label;
+    gLabels.appendChild(label); parts.push(label);
+
+    const dot = el('circle',{r:2.7, class:'n360-item', fill:kind.color, filter:'url(#n360Strong)'});
+    gDots.appendChild(dot); parts.push(dot);
+
+    return {edge:e, parts, hit, wire, dot};
+  });
+
+  const nodeItems = n360Nodes.map(n=>{
+    const t = N360_TYPES[n.type];
+    const r = R(n);
+    const g = el('g',{transform:`translate(${n.x},${n.y})`, class:'n360-item n360-node', tabindex:'0', role:'button',
+      'aria-label':`${n.label}, ${n.sub}`});
+    if(n.center){
+      g.appendChild(el('circle',{r:r+14, fill:'none', stroke:'var(--govern)', 'stroke-width':1.3, class:'n360-breathe', opacity:0.3}));
+      g.appendChild(el('circle',{r, fill:'url(#n360CenterGlow)', stroke:'var(--govern)', 'stroke-width':2, class:'node-ring', filter:'url(#n360Soft)'}));
+    } else {
+      g.appendChild(el('circle',{r, fill:'url(#n360Glow)', stroke:n.risk?'var(--risk)':t.color, 'stroke-width':1.4, class:'node-ring', filter:'url(#n360Soft)'}));
+    }
+    const icon = el('text',{x:0, y:n.center?6:5, 'text-anchor':'middle', 'font-size':n.center?'18':'14',
+      fill:n.risk?'var(--risk)':t.color, class:'n360-node-icon'});
+    icon.textContent = t.icon; g.appendChild(icon);
+
+    const t1 = el('text',{x:0, y:r+17, 'text-anchor':'middle', class:'n360-node-label'});
+    t1.textContent = n.label; g.appendChild(t1);
+    const t2 = el('text',{x:0, y:r+31, 'text-anchor':'middle', class:'n360-node-sub'});
+    t2.textContent = n.sub; g.appendChild(t2);
+
+    g.appendChild(el('circle',{r:r+14, class:'node-hit', fill:'transparent'}));
+    gNodes.appendChild(g);
+    return {node:n, nodeG:g, parts:[g]};
+  });
+
+  if(!document.getElementById('n360BreatheStyle')){
+    const s = document.createElement('style');
+    s.id = 'n360BreatheStyle';
+    s.textContent = `.n360-breathe{ animation:n360breathe 2.8s ease-in-out infinite; } @keyframes n360breathe{ 0%,100%{opacity:.2;} 50%{opacity:.45;} }`;
+    document.head.appendChild(s);
+  }
+
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!still){
-    items.forEach(({edge, dot})=>{
-      const len = edge.getTotalLength();
-      const duration = 1900 + Math.random()*1300;
+  if(still){
+    edgeItems.forEach(it=> it.dot.remove());
+  } else {
+    edgeItems.forEach(({wire, dot})=>{
+      const len = wire.getTotalLength();
+      const duration = 2100 + Math.random()*1500;
       const start = performance.now() - Math.random()*duration;
       (function step(now){
-        const pt = edge.getPointAtLength((((now-start) % duration) / duration) * len);
+        const pt = wire.getPointAtLength((((now-start) % duration)/duration)*len);
         dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
         requestAnimationFrame(step);
       })(performance.now());
     });
-  } else {
-    items.forEach(({dot})=> dot.remove());
   }
 
-  return {svg, items};
+  return {svg, edgeItems, nodeItems};
+}
+
+function wireNetwork360(c, graph, nodeById){
+  const {svg, edgeItems, nodeItems} = graph;
+  const card = document.getElementById('relDetailCard');
+  const countEl = document.getElementById('n360Count');
+
+  /* ---------- inspector ---------- */
+  function showEdge(e){
+    const a = nodeById[e.from], b = nodeById[e.to];
+    document.getElementById('rdTitle').innerHTML = `${a.label} (${a.sub})<br>&rarr; ${b.label} (${b.sub})`;
+    const badge = e.kind==='susp' ? 'High Risk Relationship'
+                : e.kind==='flow' ? 'Traced Fund Flow'
+                : e.kind==='resolve' ? 'Resolved Identity' : 'Verified Link';
+    const bd = document.getElementById('rdBadge');
+    bd.textContent = badge;
+    bd.className = 'rd-badge-row ' + (e.kind==='susp' ? 'is-risk' : e.kind==='flow' ? 'is-flow' : 'is-ok');
+    document.getElementById('rdFields').innerHTML = [
+      ['Relationship Type', e.label],
+      ['Direction', 'Outgoing'],
+      ['Source', e.src],
+      ['First Observed', e.first],
+      ['Last Observed', e.last],
+      ['Confidence', e.conf]
+    ].map(([k,v])=>`<div><span class="lbl">${k}</span><span class="val">${v}</span></div>`).join('');
+    document.getElementById('rdWhy').textContent = e.why;
+    card.style.display = '';
+  }
+  showEdge(n360Edges.find(e=>e.primary) || n360Edges[0]);
+  document.getElementById('n360Close').addEventListener('click', ()=>{ card.style.display = 'none'; });
+
+  /* ---------- focus ---------- */
+  let pinned = null, locked = false;
+
+  function lightFor(entry){
+    svg.classList.add('is-focused');
+    const ids = entry.edge
+      ? new Set([entry.edge.from, entry.edge.to])
+      : new Set([entry.node.id, ...n360Edges.filter(e=>e.from===entry.node.id||e.to===entry.node.id)
+                                            .flatMap(e=>[e.from,e.to])]);
+    edgeItems.forEach(it=>{
+      const on = entry.edge ? it.edge === entry.edge : (ids.has(it.edge.from) && ids.has(it.edge.to));
+      it.parts.forEach(p=> p.classList.toggle('is-lit', on));
+    });
+    nodeItems.forEach(it=> it.nodeG.classList.toggle('is-lit', ids.has(it.node.id)));
+  }
+  function clearFocus(){
+    svg.classList.remove('is-focused');
+    edgeItems.forEach(it=> it.parts.forEach(p=> p.classList.remove('is-lit')));
+    nodeItems.forEach(it=> it.nodeG.classList.remove('is-lit'));
+  }
+  function markSelected(entry){
+    nodeItems.forEach(it=> it.nodeG.classList.toggle('is-selected', !!entry && entry.node === it.node));
+    edgeItems.forEach(it=> it.wire.classList.toggle('is-selected', !!entry && entry.edge === it.edge));
+  }
+  function select(entry, detailEdge){
+    /* clicking the pinned thing again releases it, so there is always a way
+       back to the whole graph without hunting for a close button */
+    if(pinned === entry){ pinned = null; clearFocus(); markSelected(null); return; }
+    pinned = entry; markSelected(entry); lightFor(entry);
+    if(detailEdge) showEdge(detailEdge);
+  }
+
+  edgeItems.forEach(it=>{
+    it.hit.addEventListener('mouseenter', ()=>{ if(!pinned && !locked) lightFor(it); });
+    it.hit.addEventListener('mouseleave', ()=>{ if(!pinned && !locked) clearFocus(); });
+    it.hit.addEventListener('click', ()=> select(it, it.edge));
+  });
+  nodeItems.forEach(it=>{
+    /* a node's own story is its strongest edge — the flagged relationship
+       first, then risk, then whatever touches it — so clicking any node
+       always fills the inspector with something real */
+    const own = n360Edges.filter(e=>e.from===it.node.id||e.to===it.node.id);
+    const best = own.find(e=>e.primary) || own.find(e=>e.kind==='susp') || own[0];
+    it.nodeG.addEventListener('mouseenter', ()=>{ if(!pinned && !locked) lightFor(it); });
+    it.nodeG.addEventListener('mouseleave', ()=>{ if(!pinned && !locked) clearFocus(); });
+    it.nodeG.addEventListener('click', ()=> select(it, best));
+    it.nodeG.addEventListener('keydown', ev=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); select(it, best); } });
+  });
+
+  /* ---------- view, filters, search ---------- */
+  /* Every lens shows a different subset, so a fixed viewBox left the narrow
+     ones as a handful of nodes marooned in empty canvas. The frame is fitted
+     to whatever survives the filters — padded for labels, and held to the
+     authored aspect so the drawing never stretches. */
+  const FIT_AR = 1180/660;
+  function fitView(liveIds){
+    const vis = n360Nodes.filter(n=> liveIds.has(n.id));
+    if(!vis.length) return;
+    let x0=Infinity, y0=Infinity, x1=-Infinity, y1=-Infinity;
+    vis.forEach(n=>{
+      const r = (n.center?40:25) + 18;
+      x0=Math.min(x0,n.x-r-52); x1=Math.max(x1,n.x+r+52);
+      y0=Math.min(y0,n.y-r-18); y1=Math.max(y1,n.y+r+40);
+    });
+    let w=x1-x0, h=y1-y0;
+    if(w/h < FIT_AR){ const nw=h*FIT_AR; x0-=(nw-w)/2; w=nw; }
+    else            { const nh=w/FIT_AR; y0-=(nh-h)/2; h=nh; }
+    svg.setAttribute('viewBox', `${x0.toFixed(0)} ${y0.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}`);
+  }
+
+  const state = {view:'risk', type:'', juris:'', q:''};
+  const tabs = [...c.querySelectorAll('.n360-views span[data-view]')];
+
+  function apply(){
+    const q = state.q.trim().toLowerCase();
+    const nodeOk = n => (!state.type || n.type === state.type) && (!state.juris || n.juris === state.juris);
+    /* Type and jurisdiction pick a focus set, and an edge survives when EITHER
+       end is in it — so "Account" keeps the accounts together with whatever
+       they connect to. Requiring both ends matched instead returned nothing
+       the moment a filtered type only ever joined to a different type. A node
+       then survives when it still has an edge, so nothing is left stranded. */
+    const liveEdges = n360Edges.filter(e=>
+      e.views.includes(state.view) && (nodeOk(nodeById[e.from]) || nodeOk(nodeById[e.to])));
+    const liveIds = new Set(liveEdges.flatMap(e=>[e.from,e.to]));
+
+    edgeItems.forEach(it=>{
+      const on = liveEdges.includes(it.edge);
+      it.parts.forEach(p=> p.classList.toggle('is-out', !on));
+      it.hit.classList.toggle('is-out', !on);
+    });
+    let matches = 0;
+    nodeItems.forEach(it=>{
+      const on = liveIds.has(it.node.id);
+      const hit = !!(q && on && (it.node.label+' '+it.node.sub).toLowerCase().includes(q));
+      if(hit) matches++;
+      it.nodeG.classList.toggle('is-out', !on);
+      it.nodeG.classList.toggle('is-hit', hit);
+    });
+    svg.classList.toggle('is-searching', !!q);
+
+    if(pinned && ((pinned.node && !liveIds.has(pinned.node.id)) || (pinned.edge && !liveEdges.includes(pinned.edge)))){
+      pinned = null; clearFocus(); markSelected(null);
+    }
+    fitView(liveIds);
+    /* Search is scoped to the lens you are in, so say so rather than letting a
+       term that exists elsewhere look like it matched nothing anywhere. */
+    countEl.textContent =
+      `${liveEdges.length} of ${n360Edges.length} relationships · ${liveIds.size} of ${n360Nodes.length} nodes in this view`
+      + (q ? ` · ${matches} match${matches===1?'':'es'} for “${state.q.trim()}” in this view` : '');
+    const active = 1 + (state.type?1:0) + (state.juris?1:0) + (q?1:0);
+    document.getElementById('n360FilterCount').innerHTML = `&#9662; Filters &middot; ${active}`;
+  }
+
+  tabs.forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      tabs.forEach(t=> t.classList.remove('active'));
+      tab.classList.add('active');
+      state.view = tab.dataset.view;
+      apply();
+    });
+  });
+  document.getElementById('n360Type').addEventListener('change', ev=>{ state.type = ev.target.value; apply(); });
+  document.getElementById('n360Juris').addEventListener('change', ev=>{ state.juris = ev.target.value; apply(); });
+
+  const searchBox = document.getElementById('n360Search');
+  const searchBtn = document.getElementById('n360SearchBtn');
+  function toggleSearch(){
+    searchBox.hidden = !searchBox.hidden;
+    searchBtn.classList.toggle('is-on', !searchBox.hidden);
+    if(searchBox.hidden){ searchBox.value = ''; state.q = ''; apply(); } else searchBox.focus();
+  }
+  searchBtn.addEventListener('click', toggleSearch);
+  searchBtn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleSearch(); } });
+  searchBox.addEventListener('input', ev=>{ state.q = ev.target.value; apply(); });
+
+  const stage = document.getElementById('n360GraphAnchor');
+  const expandBtn = document.getElementById('n360ExpandBtn');
+  function toggleExpand(){
+    const on = stage.classList.toggle('is-expanded');
+    expandBtn.classList.toggle('is-on', on);
+    document.body.classList.toggle('n360-expanded', on);
+  }
+  expandBtn.addEventListener('click', toggleExpand);
+  expandBtn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleExpand(); } });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && stage.classList.contains('is-expanded')) toggleExpand(); });
+
+  const lockBtn = document.getElementById('n360LockBtn');
+  function toggleLock(){
+    locked = !locked;
+    lockBtn.classList.toggle('is-on', locked);
+    lockBtn.innerHTML = locked ? '&#128274;' : '&#128275;';
+    lockBtn.title = locked ? 'Selection locked — hover will not change it' : 'Lock the current selection';
+  }
+  lockBtn.addEventListener('click', toggleLock);
+  lockBtn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleLock(); } });
+
+  apply();
 }
 
 renderNetwork360();
