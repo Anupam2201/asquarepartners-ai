@@ -26,7 +26,7 @@ a{color:inherit;text-decoration:none;}
 /* Global content-width cap — every major section shares this, so nothing
    stretches full-bleed on wide screens. Padding stays for narrow screens;
    max-width + auto margins centers it on wide ones. */
-nav, .hero, .header, .grid, .callout, .aml-body, .e360-body, .domain-footer{
+nav, .hero, .header, .grid, .callout, .aml-body, .e360-body, .e360-lower, .domain-footer{
   max-width:1560px; margin-left:auto; margin-right:auto;
 }
 
@@ -62,6 +62,24 @@ nav{
   font-size:13.5px; font-weight:600; transition:background .2s ease, color .2s ease;
 }
 .demo-btn:hover{ background:var(--gold); color:#0E1726; }
+
+/* Responsive nav: the full nav needs ~1061px, so below 1080px the inline links
+   no longer fit beside the brand and CTA — collapse to the ☰ affordance
+   already present in .navcta. */
+@media(max-width:1080px){
+  nav{ padding:16px 24px; gap:14px; }
+  .navlinks{ display:none; }
+  .navcta{ gap:14px; }
+  .nav-history{ margin-right:8px; }
+  .prism-tag{ display:none; }
+}
+@media(max-width:700px){
+  nav{ padding:14px 16px; gap:10px; }
+  .brand{ gap:8px; min-width:0; }
+  .brand .names:first-of-type{ display:none; }  /* ASQUARE STRATEGIC PARTNERS wordmark */
+  .divider{ display:none; }
+  .demo-btn{ display:none; }
+}
 
 /* ---------- shared vector marks (paste this <svg> markup on every page) ---------- */
 /* Asquare A:  gradients #goldA / #goldAshade
@@ -283,6 +301,33 @@ nav{
   /* ---------- Entity 360 ---------- */
   .e360-body{ display:grid; grid-template-columns:38% 62%; gap:32px; padding:36px 48px 20px; align-items:start; }
   @media(max-width:1100px){ .e360-body{grid-template-columns:1fr;} }
+
+  /* Lower band — the "How it works" half of Entity 360. It used to sit inside
+     the 62% right column, so the lenses, provenance and trust rows were forced
+     into three cramped columns under the live view. Split out below the
+     two-column body it runs the full content width, opens on a rule, and is
+     reached either by scrolling on or by the "How it works →" button. */
+  /* scroll-margin keeps the opening rule clear of the sticky nav when the
+     "How it works →" button scrolls here. */
+  .e360-lower{ padding:4px 48px 24px; min-width:0; scroll-margin-top:96px; }
+  /* Six lenses and six sources, so the column counts step 6 → 3 → 2 rather
+     than auto-fitting; auto-fit lands on 4+2 and 5+1 at middling widths and
+     leaves an orphan row. Four trust statements step 4 → 2 → 1 for the same
+     reason, and read as a row here instead of a tall stack. */
+  .e360-lower .lens-grid,
+  .e360-lower .prov-row{ grid-template-columns:repeat(6,1fr); }
+  .e360-lower .cap-section{ display:grid; grid-template-columns:repeat(4,1fr); column-gap:26px; }
+  .e360-lower .cap-header{ grid-column:1/-1; }
+  .e360-lower .cap-row{ border-top:none; align-items:flex-start; }
+  @media(max-width:1440px){
+    .e360-lower .lens-grid, .e360-lower .prov-row{ grid-template-columns:repeat(3,1fr); }
+    .e360-lower .cap-section{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media(max-width:760px){
+    .e360-lower{ padding:4px 20px 20px; }
+    .e360-lower .lens-grid, .e360-lower .prov-row{ grid-template-columns:repeat(2,1fr); }
+    .e360-lower .cap-section{ grid-template-columns:1fr; }
+  }
   .e360-toggle-btn{
     padding:12px 20px; border-radius:8px; font-size:13px; font-weight:600;
     background:var(--panel2); color:var(--dim); border:1px solid var(--border);
@@ -381,6 +426,43 @@ nav{
 
   .n360-graph-area{ position:relative; background:var(--bg-deep); border-radius:12px; padding:10px; }
   #networkGraph{ width:100%; height:430px; display:block; }
+
+  /* Current running through the wires. Each edge is drawn twice: a dim static
+     conductor, and a dashed overlay whose offset animates, so the dashes read
+     as charge travelling from the entity outward. The dash cycle is 22 units
+     and the offset runs to -44, i.e. exactly two cycles, so the loop is
+     seamless with no visible jump. Risk edges run hotter and faster. */
+  .n360-current{ stroke-dasharray:7 15; stroke-linecap:round; opacity:.95;
+    animation:n360current 1.5s linear infinite; }
+  .n360-current.is-risk{ animation-duration:.85s; }
+  @keyframes n360current{ to{ stroke-dashoffset:-44; } }
+
+  .n360-node{ cursor:pointer; }
+  .n360-node .node-hit{ fill:transparent; stroke:none; }
+  /* Focus mode: hovering or selecting one node drops everything unrelated back
+     so a single relationship can be read out of a dense graph. */
+  #networkGraph .n360-item{ transition:opacity .18s ease; }
+  #networkGraph.is-focused .n360-item{ opacity:.12; }
+  #networkGraph.is-focused .n360-item.is-lit{ opacity:1; }
+  .n360-node.is-selected .node-ring{ stroke-width:2.6; }
+  /* View filtering hides rather than dims, so it cannot be confused with focus */
+  #networkGraph .n360-item.is-out{ display:none; }
+
+  /* Self-contained so the pill cannot be left behind on a stale tab: the older
+     .n360-tabs span.active rule ties this one on specificity and leans on an
+     inherited --pc, so tone is carried by data-tone here instead. */
+  .n360-tabs span[data-view]{ cursor:pointer; padding:5px 12px; border-radius:999px; font-weight:400;
+    color:var(--dim); background:transparent; transition:color .2s ease, background .2s ease; }
+  .n360-tabs span[data-view]:hover{ color:var(--text); }
+  .n360-tabs span[data-view].active{ font-weight:700; color:var(--govern);
+    background:color-mix(in srgb, var(--govern) 18%, transparent); }
+  .n360-tabs span[data-view].active[data-tone="risk"]{ color:var(--risk);
+    background:color-mix(in srgb, var(--risk) 18%, transparent); }
+  .n360-empty{ font-size:11.5px; color:var(--dim2); text-align:center; padding:10px 0 2px; }
+
+  @media(prefers-reduced-motion:reduce){
+    .n360-current{ animation:none; stroke-dasharray:none; opacity:.55; }
+  }
   .rel-detail-card{
     position:absolute; top:16px; right:16px; width:250px;
     background:rgba(14,23,38,0.96); border:1px solid var(--govern); border-radius:12px; padding:16px;
@@ -2186,7 +2268,11 @@ function renderEntity360(){
           </div>
         </div>
 
-        <div class="section-divider" id="howItWorksAnchor">
+      </div>
+    </div>
+
+    <div class="e360-lower" id="howItWorksAnchor">
+        <div class="section-divider">
           <span class="sd-title">Six Intelligence Lenses</span>
           <span class="sd-sub">How PRISM builds this view of Acme Trading Ltd.</span>
         </div>
@@ -2223,7 +2309,6 @@ function renderEntity360(){
               <div class="cap-text"><b>${row.title}</b><p>${row.text}</p></div>
             </div>`).join('')}
         </div>
-      </div>
     </div>
     <div class="domain-footer" style="display:flex; justify-content:space-between;">
       <a href="#aml" data-nav="aml">← Previous: AML/CFT Journey</a>
@@ -2318,16 +2403,56 @@ renderEntity360();
    ============================================================ */
 const network360Data = {
   center: {label:'Acme Trading Ltd.', sub:'E-742', icon:'◆'},
+  /* `views` drives the VIEW tabs — a node shows in a view when it is listed.
+     `detail` is what the Relationship Details card shows when the node is
+     clicked, so every edge really does carry its own evidence rather than the
+     card standing in for one hardcoded relationship. */
   nodes: [
-    {id:'director', x:95,  y:65,  icon:'◐', label:'John D.', sub:'Director', rel:'Director', edgeType:'solid'},
-    {id:'global',   x:225, y:38,  icon:'▤', label:'Global Imports Ltd.', sub:'O-981', rel:'Owns', edgeType:'solid'},
-    {id:'offshore', x:335, y:55,  icon:'▤', label:'Offshore Co.', sub:'BVI', rel:'', edgeType:'solid'},
-    {id:'bank1',    x:400, y:148, icon:'⌂', label:'First Union Bank', sub:'···· 7689', rel:'Controls', edgeType:'suspicious'},
-    {id:'account',  x:55,  y:230, icon:'⌂', label:'Bank Account', sub:'···· 3456', rel:'Owns', edgeType:'solid'},
-    {id:'address',  x:75,  y:330, icon:'⌖', label:'123 Harbor St.', sub:'Miami, FL', rel:'Registered Address', edgeType:'solid'},
-    {id:'deposit',  x:215, y:372, icon:'▥', label:'Cash Deposit', sub:'USD 120,000', rel:'Funds', edgeType:'solid'},
-    {id:'payment',  x:345, y:390, icon:'$', label:'Payment', sub:'USD 2,400,000', rel:'Paid', edgeType:'suspicious', risk:true},
-    {id:'msb',      x:420, y:335, icon:'◈', label:'Money Service Business', sub:'O-555', rel:'', edgeType:'solid'}
+    {id:'director', x:95,  y:65,  icon:'◐', label:'John D.', sub:'Director', rel:'Director', edgeType:'solid',
+     views:['entities','ownership','suspicious'],
+     detail:{title:'Acme Trading Ltd. (E-742) → John D.', account:'Director since Jan 2022', badge:'PEP Connection',
+       fields:[{label:'Relationship Type',value:'Director'},{label:'Direction',value:'Inbound control'},{label:'Source',value:'KYC System'},{label:'First Observed',value:'Jan 12, 2022'},{label:'Last Observed',value:'May 06, 2025'},{label:'Confidence',value:'High · 96%'}],
+       why:'Politically exposed person holding board control of the subject entity.'}},
+    {id:'global',   x:225, y:38,  icon:'▤', label:'Global Imports Ltd.', sub:'O-981', rel:'Owns', edgeType:'solid',
+     views:['entities','ownership'],
+     detail:{title:'Acme Trading Ltd. (E-742) → Global Imports Ltd.', account:'O-981', badge:'Ownership Link',
+       fields:[{label:'Relationship Type',value:'Owns 75%'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'Corporate Registry'},{label:'First Observed',value:'Mar 03, 2022'},{label:'Last Observed',value:'Apr 28, 2025'},{label:'Confidence',value:'High · 91%'}],
+       why:'Majority holding places both entities under common control.'}},
+    {id:'offshore', x:335, y:55,  icon:'▤', label:'Offshore Co.', sub:'BVI', rel:'Beneficial Owner', edgeType:'solid',
+     views:['entities','ownership'],
+     detail:{title:'Acme Trading Ltd. (E-742) → Offshore Co.', account:'BVI · O-117', badge:'High Risk Jurisdiction',
+       fields:[{label:'Relationship Type',value:'Beneficial Owner'},{label:'Direction',value:'Inbound'},{label:'Source',value:'Open Source'},{label:'First Observed',value:'Aug 19, 2022'},{label:'Last Observed',value:'Feb 11, 2025'},{label:'Confidence',value:'Medium · 74%'}],
+       why:'Ownership routed through a jurisdiction with limited beneficial-ownership disclosure.'}},
+    {id:'bank1',    x:400, y:148, icon:'⌂', label:'First Union Bank', sub:'···· 7689', rel:'Controls', edgeType:'suspicious',
+     views:['entities','ownership','risk','suspicious'],
+     detail:{title:'Acme Trading Ltd. (E-742) → First Union Bank', account:'···· 7689', badge:'High Risk Relationship',
+       fields:[{label:'Relationship Type',value:'Owns Account'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'Core Banking System'},{label:'First Observed',value:'Jan 14, 2022'},{label:'Last Observed',value:'May 06, 2025'},{label:'Confidence',value:'High · 92%'}],
+       why:'Account used in multiple high-risk transactions and structuring activity.'}},
+    {id:'account',  x:55,  y:230, icon:'⌂', label:'Bank Account', sub:'···· 3456', rel:'Owns', edgeType:'solid',
+     views:['entities','ownership'],
+     detail:{title:'Acme Trading Ltd. (E-742) → Bank Account', account:'···· 3456', badge:'Verified Link',
+       fields:[{label:'Relationship Type',value:'Owns Account'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'Core Banking System'},{label:'First Observed',value:'Jan 12, 2022'},{label:'Last Observed',value:'May 05, 2025'},{label:'Confidence',value:'High · 98%'}],
+       why:'Primary operating account; balance and activity reconcile to filed statements.'}},
+    {id:'address',  x:75,  y:330, icon:'⌖', label:'123 Harbor St.', sub:'Miami, FL', rel:'Registered Address', edgeType:'solid',
+     views:['entities','ownership'],
+     detail:{title:'Acme Trading Ltd. (E-742) → 123 Harbor St.', account:'Miami, FL (Residential)', badge:'Shared Address',
+       fields:[{label:'Relationship Type',value:'Registered Address'},{label:'Direction',value:'Attribute'},{label:'Source',value:'KYC System'},{label:'First Observed',value:'Jan 12, 2022'},{label:'Last Observed',value:'May 06, 2025'},{label:'Confidence',value:'High · 89%'}],
+       why:'Residential address shared with two further registered entities.'}},
+    {id:'deposit',  x:215, y:372, icon:'▥', label:'Cash Deposit', sub:'USD 120,000', rel:'Funds', edgeType:'solid',
+     views:['transactions'],
+     detail:{title:'Cash Deposit → Acme Trading Ltd. (E-742)', account:'USD 120,000 · Feb 03, 2022', badge:'Below Threshold',
+       fields:[{label:'Relationship Type',value:'Funds'},{label:'Direction',value:'Inbound'},{label:'Source',value:'Transaction Monitoring'},{label:'First Observed',value:'Feb 03, 2022'},{label:'Last Observed',value:'Feb 03, 2022'},{label:'Confidence',value:'High · 99%'}],
+       why:'One of twelve deposits structured just under the reporting threshold.'}},
+    {id:'payment',  x:345, y:390, icon:'$', label:'Payment', sub:'USD 2,400,000', rel:'Paid', edgeType:'suspicious', risk:true,
+     views:['transactions','risk','suspicious'],
+     detail:{title:'Acme Trading Ltd. (E-742) → Payment', account:'USD 2,400,000 · Feb 03, 2022', badge:'Suspicious Transaction',
+       fields:[{label:'Relationship Type',value:'Paid'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'Transaction Monitoring'},{label:'First Observed',value:'Feb 03, 2022'},{label:'Last Observed',value:'Feb 03, 2022'},{label:'Confidence',value:'High · 94%'}],
+       why:'Layered outbound payment moving aggregated deposits onward within 48 hours.'}},
+    {id:'msb',      x:420, y:335, icon:'◈', label:'Money Service Business', sub:'O-555', rel:'To', edgeType:'solid',
+     views:['entities','risk','suspicious'],
+     detail:{title:'Payment → Money Service Business', account:'O-555', badge:'High Risk Counterparty',
+       fields:[{label:'Relationship Type',value:'Counterparty'},{label:'Direction',value:'Outgoing'},{label:'Source',value:'External Watchlist'},{label:'First Observed',value:'Feb 03, 2022'},{label:'Last Observed',value:'Feb 03, 2022'},{label:'Confidence',value:'Medium · 78%'}],
+       why:'Terminal hop of the traced chain; unlicensed in two operating jurisdictions.'}}
   ],
   relationshipDetail: {
     title:'Acme Trading Ltd. (E-742) → First Union Bank',
@@ -2505,7 +2630,7 @@ function renderNetwork360(){
       <div class="e360-main" style="position:relative;">
         <div class="n360-tabs">
           <span class="n360-tab-label">View</span>
-          <span>Entities</span><span>Transactions</span><span>Ownership</span><span class="active" style="--pc:var(--govern);">Risk</span><span>Suspicious Path</span>
+          <span data-view="entities" class="active">Entities</span><span data-view="transactions">Transactions</span><span data-view="ownership">Ownership</span><span data-view="risk" data-tone="risk">Risk</span><span data-view="suspicious" data-tone="risk">Suspicious Path</span>
           <span class="n360-filters">⚙ Filters · 3</span>
         </div>
 
@@ -2516,14 +2641,12 @@ function renderNetwork360(){
               <span>Relationship Details</span>
               <span class="rd-close">×</span>
             </div>
-            <div class="rd-title">${d.relationshipDetail.title}</div>
-            <div class="rd-account">···· ${d.relationshipDetail.account}</div>
-            <span class="rd-badge">${d.relationshipDetail.badge}</span>
-            <div class="rd-fields">
-              ${d.relationshipDetail.fields.map(f=>`<div><span class="lbl">${f.label}</span><span class="val">${f.value}</span></div>`).join('')}
-            </div>
+            <div class="rd-title" id="rdTitle"></div>
+            <div class="rd-account" id="rdAccount"></div>
+            <span class="rd-badge" id="rdBadge"></span>
+            <div class="rd-fields" id="rdFields"></div>
             <div class="rd-why-title">Why it matters</div>
-            <div class="rd-why">${d.relationshipDetail.why}</div>
+            <div class="rd-why" id="rdWhy"></div>
             <a class="panel-link">View evidence (8) →</a>
           </div>
         </div>
@@ -2539,7 +2662,11 @@ function renderNetwork360(){
           <span class="leg-line">→ Flow</span>
         </div>
 
-        <div class="section-divider" id="howItWorksAnchorN360">
+      </div>
+    </div>
+
+    <div class="e360-lower" id="howItWorksAnchorN360">
+        <div class="section-divider">
           <span class="sd-title" style="color:var(--risk);">⚡ Suspicious Path (5 hops)</span>
           <span class="sd-sub">The exact chain PRISM traced from director to money service business</span>
         </div>
@@ -2570,7 +2697,6 @@ function renderNetwork360(){
               <div class="cap-text"><b>${row.title}</b><p>${row.text}</p></div>
             </div>`).join('')}
         </div>
-      </div>
     </div>
     <div class="domain-footer" style="display:flex; justify-content:space-between;">
       <a href="#entity360" data-nav="entity360">← Previous: Entity 360</a>
@@ -2589,11 +2715,82 @@ function renderNetwork360(){
   document.getElementById('n360BtnHow').addEventListener('click', ()=>{
     document.getElementById('howItWorksAnchorN360').scrollIntoView({behavior:'smooth', block:'start'});
   });
+  const card = document.getElementById('relDetailCard');
   document.querySelector('.rd-close').addEventListener('click', ()=>{
-    document.getElementById('relDetailCard').style.display = 'none';
+    card.style.display = 'none';
   });
 
-  drawNetworkGraph(d);
+  const {svg, items} = drawNetworkGraph(d);
+
+  /* ---- Relationship Details reads from whichever edge is selected ---- */
+  function showDetail(detail){
+    document.getElementById('rdTitle').textContent   = detail.title;
+    document.getElementById('rdAccount').textContent = detail.account;
+    document.getElementById('rdBadge').textContent   = detail.badge;
+    document.getElementById('rdFields').innerHTML    = detail.fields
+      .map(f=>`<div><span class="lbl">${f.label}</span><span class="val">${f.value}</span></div>`).join('');
+    document.getElementById('rdWhy').textContent     = detail.why;
+    card.style.display = '';
+  }
+  showDetail(d.relationshipDetail);
+
+  /* ---- Focus: hover previews a relationship, click pins it ---- */
+  let pinned = null;
+  function focusOn(entry){
+    svg.classList.add('is-focused');
+    items.forEach(it=> it.parts.forEach(p=> p.classList.toggle('is-lit', it === entry)));
+  }
+  function clearFocus(){
+    svg.classList.remove('is-focused');
+    items.forEach(it=> it.parts.forEach(p=> p.classList.remove('is-lit')));
+  }
+  items.forEach(entry=>{
+    const {nodeG, node} = entry;
+    nodeG.addEventListener('mouseenter', ()=>{ if(!pinned) focusOn(entry); });
+    nodeG.addEventListener('mouseleave', ()=>{ if(!pinned) clearFocus(); });
+    const select = ()=>{
+      /* clicking the pinned node again releases it, so there is always a way
+         back to the whole graph without hunting for a close button */
+      if(pinned === entry){ pinned = null; clearFocus(); nodeG.classList.remove('is-selected'); return; }
+      if(pinned) pinned.nodeG.classList.remove('is-selected');
+      pinned = entry; nodeG.classList.add('is-selected');
+      focusOn(entry); showDetail(node.detail);
+    };
+    nodeG.addEventListener('click', select);
+    nodeG.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); select(); } });
+  });
+
+  /* ---- VIEW tabs filter the graph to one slice ---- */
+  const tabs = [...c.querySelectorAll('.n360-tabs span[data-view]')];
+  const emptyNote = document.createElement('div');
+  emptyNote.className = 'n360-empty';
+  emptyNote.style.display = 'none';
+  document.getElementById('n360GraphAnchor').appendChild(emptyNote);
+
+  function applyView(view){
+    let shown = 0;
+    items.forEach(it=>{
+      const inView = (it.node.views || []).includes(view);
+      if(inView) shown++;
+      it.parts.forEach(p=> p.classList.toggle('is-out', !inView));
+    });
+    /* a pinned selection that just left the view would keep the graph dimmed
+       with nothing lit, so release it */
+    if(pinned && !(pinned.node.views || []).includes(view)){
+      pinned.nodeG.classList.remove('is-selected'); pinned = null; clearFocus();
+    }
+    emptyNote.textContent = `${shown} of ${items.length} relationships in this view`;
+    emptyNote.style.display = '';
+  }
+  tabs.forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      tabs.forEach(t=> t.classList.remove('active'));
+      tab.classList.add('active');
+      applyView(tab.dataset.view);
+    });
+  });
+  applyView('entities');
+
   renderFabricGrid();
 }
 
@@ -2601,6 +2798,7 @@ function drawNetworkGraph(d){
   const svg = document.getElementById('networkGraph');
   const NS = 'http://www.w3.org/2000/svg';
   function el(tag, attrs){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+  svg.innerHTML = '';
   const defs = el('defs',{});
   defs.innerHTML = `
     <radialGradient id="n360Glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2E2650"/><stop offset="100%" stop-color="#14101F"/></radialGradient>
@@ -2610,29 +2808,45 @@ function drawNetworkGraph(d){
   svg.appendChild(defs);
 
   const cx=260, cy=220;
-  const edges = [];
-  d.nodes.forEach(n=>{
-    const susp = n.edgeType === 'suspicious';
-    const edge = el('path',{ d:`M${cx},${cy} L${n.x},${n.y}`, stroke: susp?'var(--risk)':'#3a3560', 'stroke-width':1.5, opacity:0.7, fill:'none' });
-    if(susp){ edge.setAttribute('stroke-dasharray','5 4'); edge.classList.add('n360-risk-edge'); }
-    svg.appendChild(edge);
-    edges.push({el:edge, risk:susp});
-    if(n.rel){
-      const mx = (cx+n.x)/2, my=(cy+n.y)/2;
-      const t = el('text',{x:mx, y:my-4, 'text-anchor':'middle','font-size':'8.5','font-family':'Inter, sans-serif', fill: susp?'var(--risk)':'var(--dim2)', 'font-weight':'600'});
-      t.textContent = n.rel;
-      svg.appendChild(t);
-    }
-  });
+  /* separate layers so wires never paint over node discs or labels */
+  const gEdges = el('g',{}), gLabels = el('g',{}), gDots = el('g',{}), gNodes = el('g',{});
+  [gEdges, gLabels, gDots, gNodes].forEach(g=> svg.appendChild(g));
+
+  /* every rendered piece of a node registers together, so focus and view
+     filtering can light or hide a relationship as one unit */
+  const items = [];
 
   d.nodes.forEach(n=>{
-    const g = el('g',{transform:`translate(${n.x},${n.y})`});
+    const susp = n.edgeType === 'suspicious';
+    const path = `M${cx},${cy} L${n.x},${n.y}`;
+    const parts = [];
+
+    const wire = el('path',{ d:path, class:'n360-item', stroke: susp?'var(--risk)':'#3a3560', 'stroke-width':1.5, opacity:0.55, fill:'none' });
+    const current = el('path',{ d:path, class:'n360-item n360-current'+(susp?' is-risk':''), stroke: susp?'var(--risk)':'var(--govern)', 'stroke-width':2.1, fill:'none' });
+    gEdges.appendChild(wire); gEdges.appendChild(current);
+    parts.push(wire, current);
+
+    if(n.rel){
+      const t = el('text',{x:(cx+n.x)/2, y:(cy+n.y)/2-4, class:'n360-item', 'text-anchor':'middle','font-size':'8.5','font-family':'Inter, sans-serif', fill: susp?'var(--risk)':'var(--dim2)', 'font-weight':'600'});
+      t.textContent = n.rel;
+      gLabels.appendChild(t); parts.push(t);
+    }
+
+    const g = el('g',{transform:`translate(${n.x},${n.y})`, class:'n360-item n360-node', tabindex:'0', role:'button'});
     const r = 24;
-    g.appendChild(el('circle',{r, fill:'url(#n360Glow)', stroke: n.risk?'var(--risk)':(n.edgeType==='suspicious'?'var(--risk)':'#443d70'), 'stroke-width':1.3, filter:'url(#n360Soft)'}));
+    g.appendChild(el('circle',{r, class:'node-ring', fill:'url(#n360Glow)', stroke: (n.risk||susp)?'var(--risk)':'#443d70', 'stroke-width':1.3, filter:'url(#n360Soft)'}));
     const icon = el('text',{x:0,y:5,'text-anchor':'middle','font-size':'14', fill: n.risk?'var(--risk)':'var(--govern)'}); icon.textContent=n.icon; g.appendChild(icon);
     const t1 = el('text',{x:0,y:r+13,'text-anchor':'middle','font-size':'9','font-family':'Inter, sans-serif', fill:'var(--text)','font-weight':'600'}); t1.textContent=n.label; g.appendChild(t1);
     const t2 = el('text',{x:0,y:r+24,'text-anchor':'middle','font-size':'8','font-family':'Inter, sans-serif', fill:'var(--dim)'}); t2.textContent=n.sub; g.appendChild(t2);
-    svg.appendChild(g);
+    /* one generous invisible disc takes the pointer, so the thin ring and the
+       two label lines are not each a separate fiddly hit target */
+    g.appendChild(el('circle',{r:r+16, class:'node-hit'}));
+    gNodes.appendChild(g); parts.push(g);
+
+    const dot = el('circle', {r:2.6, class:'n360-item', fill: susp?'var(--risk)':'var(--govern)', filter:'url(#n360Strong)'});
+    gDots.appendChild(dot); parts.push(dot);
+
+    items.push({node:n, parts, nodeG:g, edge:wire, dot});
   });
 
   /* faded ghost nodes at the edges — implies the network extends further */
@@ -2640,7 +2854,7 @@ function drawNetworkGraph(d){
     const g = el('g',{transform:`translate(${x},${y})`, opacity:0.25});
     g.appendChild(el('circle',{r:14, fill:'url(#n360Glow)', stroke:'#443d70', 'stroke-width':1}));
     const icon = el('text',{x:0,y:4,'text-anchor':'middle','font-size':'11', fill:'var(--dim2)'}); icon.textContent='◐'; g.appendChild(icon);
-    svg.appendChild(g);
+    gNodes.appendChild(g);
   });
 
   const cg = el('g',{transform:`translate(${cx},${cy})`});
@@ -2648,26 +2862,34 @@ function drawNetworkGraph(d){
   cg.appendChild(el('circle',{r:38, fill:'url(#n360CenterGlow)', stroke:'var(--govern)', 'stroke-width':2, filter:'url(#n360Soft)'}));
   const ct1 = el('text',{x:0,y:-2,'text-anchor':'middle','font-size':'13','font-family':'Inter, sans-serif', fill:'var(--text)','font-weight':'700'}); ct1.textContent='AT'; cg.appendChild(ct1);
   const ct2 = el('text',{x:0,y:13,'text-anchor':'middle','font-size':'8','font-family':'Inter, sans-serif', fill:'var(--dim)'}); ct2.textContent=d.center.sub; cg.appendChild(ct2);
-  svg.appendChild(cg);
+  gNodes.appendChild(cg);
 
-  const styleTag = document.createElement('style');
-  styleTag.textContent = `.n360-breathe{ animation: n360breathe 2.8s ease-in-out infinite; } @keyframes n360breathe{ 0%,100%{opacity:.2; r:52;} 50%{opacity:.45; r:58;} }`;
-  document.head.appendChild(styleTag);
+  if(!document.getElementById('n360BreatheStyle')){
+    const styleTag = document.createElement('style');
+    styleTag.id = 'n360BreatheStyle';
+    styleTag.textContent = `.n360-breathe{ animation: n360breathe 2.8s ease-in-out infinite; } @keyframes n360breathe{ 0%,100%{opacity:.2; r:52;} 50%{opacity:.45; r:58;} }`;
+    document.head.appendChild(styleTag);
+  }
 
-  edges.forEach(({el:edge, risk})=>{
-    const len = edge.getTotalLength();
-    const dot = el('circle', {r:2.3, fill: risk?'var(--risk)':'var(--govern)', filter:'url(#n360Strong)'});
-    svg.appendChild(dot);
-    const duration = 1900 + Math.random()*1300;
-    const start = performance.now() - Math.random()*duration;
-    function step(now){
-      const frac = ((now-start) % duration) / duration;
-      const pt = edge.getPointAtLength(frac*len);
-      dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
-      requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  });
+  /* travelling charge on top of the dashed flow — skipped when the visitor has
+     asked for reduced motion, since this one cannot be disabled from CSS */
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!still){
+    items.forEach(({edge, dot})=>{
+      const len = edge.getTotalLength();
+      const duration = 1900 + Math.random()*1300;
+      const start = performance.now() - Math.random()*duration;
+      (function step(now){
+        const pt = edge.getPointAtLength((((now-start) % duration) / duration) * len);
+        dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
+        requestAnimationFrame(step);
+      })(performance.now());
+    });
+  } else {
+    items.forEach(({dot})=> dot.remove());
+  }
+
+  return {svg, items};
 }
 
 renderNetwork360();
@@ -5663,16 +5885,27 @@ renderWhyPrism();
    carry invented figures too. One pass covers them, so the notice cannot be
    forgotten when another such page is added. */
 (function tagIllustrativePages(){
-  var ids = ['rtmaction','entity360','network360','aml'];
-  var html = '<div class="fd-illus" style="margin:18px 44px 0;"><b>ILLUSTRATIVE</b>'
+  /* The notice qualifies the illustration, not the page, so it goes inside the
+     panel that holds the invented figures — the same placement the capability
+     pages get by putting it inside .cp-card. Prepending it to the page root
+     instead stretched one gold rule across the full screen, above the
+     narrative copy, which qualifies nothing. */
+  var targets = {
+    entity360:  '.e360-main',
+    network360: '.e360-main',
+    aml:        '.aml-workspace',
+    rtmaction:  '.rtma-section'
+  };
+  var html = '<div class="fd-illus"><b>ILLUSTRATIVE</b>'
     + '<span>— Synthetic scenario shown to demonstrate the interface. '
     + 'Figures are representative, not client data or performance results.</span></div>';
   function run(){
-    ids.forEach(function(id){
+    Object.keys(targets).forEach(function(id){
       var el = document.getElementById('page-' + id);
-      if(el && el.innerHTML.trim().length > 200 && !el.querySelector('.fd-illus')){
-        el.insertAdjacentHTML('afterbegin', html);
-      }
+      if(!el || el.innerHTML.trim().length <= 200 || el.querySelector('.fd-illus')) return;
+      /* fall back to the page root if a renderer ever drops the panel, so the
+         disclosure is never silently lost */
+      (el.querySelector(targets[id]) || el).insertAdjacentHTML('afterbegin', html);
     });
   }
   run(); setTimeout(run, 0); setTimeout(run, 300);
