@@ -465,17 +465,12 @@ nav{
   .n360-body{ grid-template-columns:24% 76%; gap:24px; }
   .n360-main{ padding:16px; }
   @media(max-width:1100px){ .n360-body{ grid-template-columns:1fr; } }
-  .n360-stage{ display:grid; grid-template-columns:minmax(0,1fr) 268px; gap:12px;
-    background:var(--bg-deep); border-radius:12px; padding:10px; }
-  /* Docking the inspector beside the canvas costs ~280px of graph. Below this
-     the graph reads better with the full width and the panel underneath, so
-     the side-by-side only kicks in when there is genuinely room for both. */
-  @media(max-width:1700px){
-    .n360-stage{ grid-template-columns:1fr; }
-    /* stacked, the panel would stretch the whole canvas width and read as
-       mostly empty space between each label and its value */
-    .n360-inspector{ max-width:560px; }
-  }
+  /* Canvas full width with the inspector as a strip beneath it. Docking the
+     panel beside the canvas costs ~280px of graph at every width, which made
+     a 1800px screen draw a SMALLER graph than a 1600px one — and the graph is
+     the whole point of this page. The strip below keeps every field and gives
+     the drawing the full width back. */
+  .n360-stage{ display:block; background:var(--bg-deep); border-radius:12px; padding:10px; }
   .n360-canvas{ position:relative; min-width:0; }
   #networkGraph{ width:100%; height:auto; aspect-ratio:1180/660; display:block; }
   .n360-count{ font-size:11px; color:var(--dim2); text-align:center; padding-top:6px; }
@@ -523,9 +518,22 @@ nav{
 
   /* ---- inspector ---- */
   .n360-inspector{
-    background:rgba(14,23,38,0.96); border:1px solid var(--govern); border-radius:12px;
-    padding:16px; align-self:start; min-width:0;
+    display:block; margin-top:12px; min-width:0;
+    background:rgba(14,23,38,0.96); border:1px solid var(--govern); border-radius:12px; padding:16px;
   }
+  /* Three zones — identity, the evidence fields, the rationale — instead of six
+     rows each stretching a label away from its own value across the panel. */
+  .n360-inspector .rd-body{
+    display:grid; align-items:start; gap:24px;
+    grid-template-columns:minmax(190px,.9fr) minmax(280px,1.5fr) minmax(220px,1.1fr);
+  }
+  .n360-inspector .rd-fields{ display:grid; grid-template-columns:repeat(2,1fr); column-gap:22px; row-gap:10px; }
+  .n360-inspector .rd-fields > div{ display:block; border-top:none; padding:0; }
+  .n360-inspector .rd-fields .lbl{ display:block; font-size:9px; letter-spacing:.05em; text-transform:uppercase; }
+  .n360-inspector .rd-fields .val{ display:block; text-align:left; margin-top:2px; font-size:11.5px; }
+  .n360-inspector .rd-why-title{ margin-top:0; }
+  .n360-inspector .rd-actions{ margin-top:12px; padding-top:10px; }
+  @media(max-width:900px){ .n360-inspector .rd-body{ grid-template-columns:1fr; gap:14px; } }
   .rd-head{ display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--govern); font-weight:700; margin-bottom:10px; }
   .rd-close{ cursor:pointer; color:var(--dim2); font-size:14px; }
   .rd-title{ font-size:13px; font-weight:700; color:var(--text); line-height:1.45; }
@@ -2709,12 +2717,18 @@ function renderNetwork360(){
           </div>
           <aside class="n360-inspector" id="relDetailCard">
             <div class="rd-head"><span>Relationship Details</span><span class="rd-close" id="n360Close">&times;</span></div>
-            <div class="rd-title" id="rdTitle"></div>
-            <div class="rd-badge-row" id="rdBadge"></div>
-            <div class="rd-fields" id="rdFields"></div>
-            <div class="rd-why-title">Why it matters</div>
-            <div class="rd-why" id="rdWhy"></div>
-            <a class="rd-evidence" id="rdEvidence">View evidence (12) &rarr;</a>
+            <div class="rd-body">
+              <div class="rd-zone">
+                <div class="rd-title" id="rdTitle"></div>
+                <div class="rd-badge-row" id="rdBadge"></div>
+              </div>
+              <div class="rd-fields" id="rdFields"></div>
+              <div class="rd-zone">
+                <div class="rd-why-title">Why it matters</div>
+                <div class="rd-why" id="rdWhy"></div>
+                <a class="rd-evidence" id="rdEvidence">View evidence (12) &rarr;</a>
+              </div>
+            </div>
             <div class="rd-actions">
               <span title="Open as table">&#9638;</span><span title="Export">&#9993;</span><span title="History">&#9201;</span><span title="Share">&#10688;</span>
             </div>
