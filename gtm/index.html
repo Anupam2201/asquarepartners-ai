@@ -1112,6 +1112,74 @@ nav{
   .fnd-cx.is-after .fnd-cx-row::before{ content:"✓"; color:var(--confirm); }
 
   .fnd-foot{ padding-bottom:56px; }
+
+  /* ---------- About Asquare ----------
+     The parent-brand surface: the firm first, the two platforms second. It
+     states the firm's stance rather than repeating the product guarantees,
+     and carries no headline figures — those stay where they are already
+     made, on the layer and domain pages. */
+  .ab-cred{ display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+    border-bottom:1px solid var(--border); background:rgba(3,8,18,.4); }
+  .ab-cred-item{ display:flex; align-items:center; gap:12px; padding:16px 26px;
+    border-left:1px solid var(--border); min-width:0; }
+  .ab-cred-item:first-child{ border-left:none; }
+  .ab-cred-icon{ font-size:19px; flex:0 0 auto; }
+  .ab-cred-item b{ display:block; font-size:12.5px; font-weight:650; color:var(--text); line-height:1.35; }
+  .ab-cred-item em{ display:block; font-style:normal; font-size:11.5px; color:var(--dim2); margin-top:2px; }
+  @media(max-width:1100px){ .ab-cred{ grid-template-columns:repeat(2,1fr); }
+    .ab-cred-item:nth-child(odd){ border-left:none; } }
+  @media(max-width:620px){ .ab-cred{ grid-template-columns:1fr; } .ab-cred-item{ border-left:none; } }
+
+  .ab-hero{ display:grid; grid-template-columns:1fr 380px; gap:40px; align-items:center;
+    max-width:1560px; margin:0 auto; padding:54px 48px 40px; }
+  @media(max-width:1000px){ .ab-hero{ grid-template-columns:1fr; } .ab-mark{ display:none; } }
+  .ab-h1{ font-family:var(--serif); font-size:clamp(30px,3.2vw,46px); line-height:1.18; font-weight:400; color:var(--text); }
+  .ab-h1-hl{ background:linear-gradient(90deg,var(--agentic),var(--intel) 60%,var(--govern));
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .ab-kicker{ font-size:15px; color:var(--agentic); margin:16px 0 18px; }
+  .ab-mark svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 0 40px rgba(199,161,90,.25)); }
+
+  .ab-band{ max-width:1560px; margin:0 auto; padding:0 48px 44px; }
+  .ab-band-head{ padding-top:34px; border-top:1px solid var(--border); margin-bottom:22px; }
+  .ab-band-title{ font-family:var(--serif); font-size:25px; font-weight:400; color:var(--text); margin-bottom:16px; }
+  .ab-band-head .ab-band-title{ margin-bottom:6px; }
+  .ab-band-sub{ font-size:13px; color:var(--dim2); }
+  .ab-band-grid{ display:grid; grid-template-columns:1fr 1fr; gap:46px;
+    padding-top:34px; border-top:1px solid var(--border); }
+  @media(max-width:1000px){ .ab-band-grid{ grid-template-columns:1fr; gap:26px; } }
+
+  .ab-platforms{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media(max-width:1000px){ .ab-platforms{ grid-template-columns:1fr; } }
+  .ab-plat{ border:1px solid color-mix(in srgb, var(--pc) 34%, var(--border)); border-radius:16px; padding:28px 30px;
+    background:radial-gradient(120% 80% at 82% 0%, color-mix(in srgb, var(--pc) 13%, transparent), transparent 62%),
+               linear-gradient(180deg, var(--panel), var(--panel2));
+    box-shadow:0 30px 70px -40px color-mix(in srgb, var(--pc) 80%, transparent); min-width:0; }
+  .ab-plat-name{ font-size:30px; font-weight:300; letter-spacing:.22em; color:var(--pc); }
+  .ab-plat-tag{ font-size:11px; letter-spacing:.12em; color:var(--dim); margin:6px 0 16px; }
+  .ab-plat-text{ font-size:13.5px; line-height:1.65; color:var(--dim); }
+  .ab-plat-pillars{ display:grid; grid-template-columns:1fr 1fr; gap:12px 18px;
+    margin:22px 0 20px; padding-top:18px; border-top:1px solid var(--border); }
+  .ab-pillar{ display:flex; align-items:center; gap:10px; font-size:12px; color:var(--text); min-width:0; }
+  .ab-pillar-icon{ color:var(--pc); font-size:15px; flex:0 0 auto; }
+  .ab-plat-cta{ display:inline-block; font-size:13px; font-weight:600; color:var(--pc);
+    border:1px solid color-mix(in srgb, var(--pc) 60%, transparent); border-radius:999px; padding:10px 22px;
+    transition:background .2s ease; }
+  .ab-plat-cta:hover{ background:color-mix(in srgb, var(--pc) 14%, transparent); }
+  /* MARIQ has no page yet, so it states that rather than offering a dead link */
+  .ab-plat-note{ display:inline-block; font-size:11.5px; font-weight:600; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--dim2); border:1px dashed var(--border);
+    border-radius:999px; padding:9px 20px; }
+
+  .ab-close{ display:flex; align-items:center; justify-content:center; gap:12px;
+    max-width:1560px; margin:0 auto; padding:30px 48px 60px; border-top:1px solid var(--border);
+    font-family:var(--serif); font-size:19px; color:var(--dim); }
+  .ab-close b{ color:var(--gold); font-weight:400; }
+  .ab-close-icon{ color:var(--gold); font-size:20px; }
+  @media(max-width:760px){
+    .ab-hero{ padding:34px 20px 26px; }
+    .ab-band{ padding:0 20px 30px; }
+    .ab-close{ padding:24px 20px 40px; font-size:16px; text-align:center; }
+  }
   @media(max-width:1200px){
     .fnd-example{ grid-template-columns:repeat(2,1fr); }
     .fnd-ex{ border-left:none; border-radius:0 !important; border-top:1px solid var(--border); }
@@ -1606,7 +1674,7 @@ nav{
     <div class="names"><span class="prism-name">PRISM</span><span class="prism-tag">AI-Native Financial Crime Intelligence</span></div>
   </a>
   <div class="navlinks">
-    <a href="#domains" data-nav="domains">What is PRISM</a><a href="#portfolio" data-nav="portfolio">Platform</a><a href="#domains" data-nav="domains">Solutions</a><a href="#" data-nav="none">Customers</a><a href="#foundation" data-nav="foundation">Why PRISM</a><a href="#" data-nav="none">Company</a>
+    <a href="#domains" data-nav="domains">What is PRISM</a><a href="#portfolio" data-nav="portfolio">Platform</a><a href="#domains" data-nav="domains">Solutions</a><a href="#" data-nav="none">Customers</a><a href="#foundation" data-nav="foundation">Why PRISM</a><a href="#about" data-nav="about">About Us</a>
   </div>
   <div class="navcta"><a href="#demo" class="demo-btn">Request a Demo</a><span style="font-size:20px;color:var(--dim);">☰</span></div>
 </nav>
@@ -3240,6 +3308,7 @@ renderNetwork360();
 <div id="page-portfolio" class="page" style="display:none;"></div>
 <div id="page-foundation" class="page" style="display:none;"></div>
 <div id="page-whyprism" class="page" style="display:none;"></div>
+<div id="page-about" class="page" style="display:none;"></div>
 <div id="page-layer-intelligence" class="page" style="display:none;"></div>
 <div id="page-layer-agentic" class="page" style="display:none;"></div>
 <div id="page-layer-governance" class="page" style="display:none;"></div>
@@ -6290,8 +6359,157 @@ function renderWhyPrism(){
     </div>`;
 }
 
+/* ============================================================
+   ABOUT US — the parent-brand surface. Asquare first, then the
+   two platforms it builds. Deliberately company-level: the
+   product guarantees stay on the PRISM pages, and the four
+   headline figures stay where they are already stated.
+   ============================================================ */
+const ABOUT_CREDENTIALS = [
+  {icon:'◎', color:'var(--gold)',    title:'Deep domain expertise', sub:'in financial services'},
+  {icon:'◈', color:'var(--govern)',  title:'Enterprise-grade technology', sub:'and AI innovation'},
+  {icon:'⛨', color:'var(--intel)',   title:'Trusted partner', sub:'to financial institutions'},
+  {icon:'📈', color:'var(--agentic)', title:'Building measurable impact', sub:'for a safer financial system'}
+];
+
+/* The firm's stance, not a restatement of what the products guarantee. */
+const ABOUT_BELIEFS = [
+  {icon:'◐', title:'Domain first, model second.',
+   text:'We start from how financial crime and commercial performance actually work inside a regulated institution — not from what a model happens to be good at.'},
+  {icon:'◎', title:'Explainability is not a feature.',
+   text:'In a regulated industry, a decision you cannot account for is a decision you cannot defend. That constraint shapes the architecture, it is not bolted on after it.'},
+  {icon:'↻', title:'Systems should compound.',
+   text:'Every outcome should make the next decision better. A platform that cannot learn from what it did is just software you paid for twice.'},
+  {icon:'◉', title:'Built with institutions, not at them.',
+   text:'We work alongside the teams who carry the regulatory responsibility, because they are the ones who have to stand behind the result.'}
+];
+
+const ABOUT_WORKING = [
+  {icon:'⌖', title:'Global perspective',     text:'Built around how regulation actually differs by jurisdiction.'},
+  {icon:'⇄', title:'Collaborative approach', text:'Delivered with your teams, not handed over at the end.'},
+  {icon:'⛨', title:'Long-term commitment',   text:'Platforms are chosen for a decade, and supported like it.'},
+  {icon:'▥', title:'Measurable impact',      text:'Every engagement carries the measure it will be judged on.'}
+];
+
+const ABOUT_PLATFORMS = [
+  {name:'PRISM', color:'var(--agentic)', tag:'AI-NATIVE FINANCIAL CRIME INTELLIGENCE',
+   text:'Connect financial-crime intelligence across entities, networks, transactions and controls — then move from intelligence to governed action and measurable outcomes.',
+   pillars:[{icon:'✳', label:'Connected Intelligence'},{icon:'◉', label:'Agentic Actions'},
+            {icon:'⛨', label:'AI Governance'},{icon:'▥', label:'Performance Engine'}],
+   cta:{label:'Explore PRISM', nav:'foundation'}},
+  {name:'MARIQ', color:'var(--govern)', tag:'AI-NATIVE PERFORMANCE INTELLIGENCE',
+   text:'Connect commercial, customer and operational intelligence to identify opportunities, guide action and continuously measure performance.',
+   pillars:[{icon:'◎', label:'Performance Intelligence'},{icon:'◉', label:'Agentic Actions'},
+            {icon:'⛨', label:'AI Governance'},{icon:'▥', label:'Measurement & Outcomes'}],
+   cta:null, note:'In development'}
+];
+
+function renderAbout(){
+  const c = document.getElementById('page-about');
+  c.innerHTML = `
+    <div class="ab-cred">
+      ${ABOUT_CREDENTIALS.map(x=>`
+        <div class="ab-cred-item">
+          <span class="ab-cred-icon" style="color:${x.color};">${gi(x.icon)}</span>
+          <span><b>${x.title}</b><em>${x.sub}</em></span>
+        </div>`).join('')}
+    </div>
+
+    <section class="ab-hero">
+      <div>
+        <div class="eyebrow" style="color:var(--gold);">ABOUT ASQUARE</div>
+        <h2 class="ab-h1">AI-native platforms for<br><span class="ab-h1-hl">regulated financial services.</span></h2>
+        <div class="ab-kicker">Banking. Fintech. Data. Financial Services Expertise.</div>
+        <p class="lede" style="max-width:560px;">We combine deep domain expertise across banking and fintech with enterprise AI and data excellence to build platforms that drive intelligence, guide action and deliver measurable performance.</p>
+      </div>
+      <div class="ab-mark">
+        <svg viewBox="0 0 300 300" role="img" aria-label="Asquare mark">
+          <defs>
+            <radialGradient id="abGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#C7A15A" stop-opacity=".24"/>
+              <stop offset="65%" stop-color="#C7A15A" stop-opacity=".05"/>
+              <stop offset="100%" stop-color="#C7A15A" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="abGold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#E9C27A"/><stop offset="55%" stop-color="#C7A15A"/><stop offset="100%" stop-color="#8a6a2e"/>
+            </linearGradient>
+            <linearGradient id="abGoldShade" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#8a6a2e"/><stop offset="100%" stop-color="#5f471d"/>
+            </linearGradient>
+          </defs>
+          <circle cx="150" cy="150" r="140" fill="url(#abGlow)"/>
+          <circle cx="150" cy="150" r="112" fill="none" stroke="#C7A15A" stroke-width="0.7" opacity=".2"/>
+          <circle cx="150" cy="150" r="82"  fill="none" stroke="#C7A15A" stroke-width="0.7" opacity=".14"/>
+          ${[18,74,133,199,256,310].map((d,i)=>{
+            const a = d*Math.PI/180, r = i%2 ? 112 : 82;
+            return `<circle cx="${(150+r*Math.cos(a)).toFixed(1)}" cy="${(150+r*Math.sin(a)).toFixed(1)}" r="2.6" fill="#C7A15A" opacity=".55"/>`;
+          }).join('')}
+          <g transform="translate(150,150) scale(3.1) translate(-20,-20)">
+            <path d="M20,4 L35,34 L25,34 L20,22 L15,34 L5,34 Z" fill="url(#abGold)"/>
+            <path d="M20,4 L27.5,19 L20,19 Z" fill="url(#abGoldShade)" opacity="0.85"/>
+            <path d="M16.5,26 L23.5,26 L25,29.5 L15,29.5 Z" fill="#0E1726" opacity="0.55"/>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <section class="ab-band">
+      <div class="ab-band-grid">
+        <div>
+          <div class="ab-band-title">What we believe</div>
+          ${ABOUT_BELIEFS.map(b=>`
+            <div class="cap-row">
+              <div class="cap-icon">${gi(b.icon)}</div>
+              <div class="cap-text"><b>${b.title}</b><p>${b.text}</p></div>
+            </div>`).join('')}
+        </div>
+        <div>
+          <div class="ab-band-title">How we work</div>
+          ${ABOUT_WORKING.map(w=>`
+            <div class="cap-row">
+              <div class="cap-icon" style="color:var(--intel); border-color:rgba(79,179,255,.4); background:radial-gradient(circle, rgba(79,179,255,.14), transparent 72%);">${gi(w.icon)}</div>
+              <div class="cap-text"><b>${w.title}</b><p>${w.text}</p></div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="ab-band">
+      <div class="ab-band-head">
+        <div class="ab-band-title">Two platforms, one foundation</div>
+        <div class="ab-band-sub">The same connected-intelligence architecture, applied to two different questions</div>
+      </div>
+      <div class="ab-platforms">
+        ${ABOUT_PLATFORMS.map(p=>`
+          <div class="ab-plat" style="--pc:${p.color};">
+            <div class="ab-plat-name">${p.name}</div>
+            <div class="ab-plat-tag">${p.tag}</div>
+            <p class="ab-plat-text">${p.text}</p>
+            <div class="ab-plat-pillars">
+              ${p.pillars.map(pl=>`
+                <div class="ab-pillar"><span class="ab-pillar-icon">${gi(pl.icon)}</span>${pl.label}</div>`).join('')}
+            </div>
+            ${p.cta
+              ? `<a class="ab-plat-cta" href="#${p.cta.nav}" data-nav="${p.cta.nav}">${p.cta.label} &rarr;</a>`
+              : `<span class="ab-plat-note">${p.note}</span>`}
+          </div>`).join('')}
+      </div>
+    </section>
+
+    <div class="ab-close">
+      <span class="ab-close-icon">${gi('⌖')}</span>
+      Built for the <b>global regulated financial services</b> industry.
+    </div>
+  `;
+
+  c.querySelectorAll('[data-nav]').forEach(a=>{
+    a.addEventListener('click', e=>{ e.preventDefault(); goToPage(a.dataset.nav); });
+  });
+}
+
 renderFoundation();
 renderWhyPrism();
+renderAbout();
 
 
 
