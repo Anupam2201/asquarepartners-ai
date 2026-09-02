@@ -1037,8 +1037,11 @@ nav{
 
   .wp-foot{ display:flex; justify-content:center; gap:12px; margin-top:34px; flex-wrap:wrap; }
   /* ---------- Foundation screen: four connected layers ---------- */
-  .fnd{ display:grid; grid-template-columns:32% 68%; gap:34px; align-items:start; align-content:center;
-    min-height:calc(100vh - 92px); padding:40px 48px 44px; max-width:1680px; margin:0 auto; }
+  /* No min-height/align-content:center here. Forcing the band to a viewport
+     height padded 243px of dead space above and below content that is only
+     865px tall, and grew worse the taller the display. */
+  .fnd{ display:grid; grid-template-columns:32% 68%; gap:34px; align-items:start;
+    padding:48px 48px 56px; max-width:1680px; margin:0 auto; }
   @media(max-width:1200px){ .fnd{ grid-template-columns:1fr; gap:30px; } }
   .fnd-h1{ font-family:var(--serif); font-size:clamp(27px,2.2vw,37px); line-height:1.16; font-weight:400; color:var(--text); margin:0 0 18px; }
   .fnd-h1 span{ background:linear-gradient(90deg,#5CC8FF 0%,#7C8DF7 20%,#A98CFF 38%,#C983E6 55%,#E8746A 78%,#F5A65E 100%);
@@ -1053,7 +1056,10 @@ nav{
     background:radial-gradient(circle, color-mix(in srgb, currentColor 16%, transparent), transparent 72%); }
   .fnd-prop-title{ font-size:11px; font-weight:650; color:var(--text); line-height:1.35; margin-bottom:4px;
     hyphens:none; overflow-wrap:normal; }
-  .fnd-prop-sub{ font-size:11px; color:#8492AC; line-height:1.45; margin-top:auto; padding-top:8px; }
+  /* margin-top:auto pinned every sub to the bottom of a stretched column, so
+     the gap under each title ran 20/20/21px against 4px depending on how many
+     lines that title wrapped to. It now follows its own title. */
+  .fnd-prop-sub{ font-size:11px; color:#8492AC; line-height:1.45; margin-top:7px; }
   .fnd-note{ font-size:12.5px; color:var(--dim2); margin-top:18px; }
 
   .fnd-cards{ display:flex; align-items:stretch; gap:0; }
@@ -1090,13 +1096,33 @@ nav{
     filter:drop-shadow(0 0 6px color-mix(in srgb, var(--lc) 60%, transparent)); }
 
   /* human-in-the-loop rail feeding back into every layer */
-  .fnd-rail{ display:grid; grid-template-columns:repeat(4,1fr); position:relative; height:34px; margin-top:2px; }
-  .fnd-rail::after{ content:""; position:absolute; left:12.5%; right:12.5%; bottom:0; border-top:1px dashed #3A4A63; pointer-events:none; }
-  .fnd-up{ justify-self:center; width:1px; height:34px; background:#4A5C7C; position:relative; }
+  /* One continuous return line under the band with a stem rising into each
+     card, and the label seated on the line rather than floating in a row
+     beneath it. The line is two flex segments so the label interrupts it
+     cleanly — a background chip would have to match the page gradient behind
+     it, which it cannot at every scroll position. */
+  .fnd-loop{ margin-top:4px; }
+  /* The rail mirrors the cards row exactly — same flex children, same arrow
+     spacers, only hidden — because an even four-column grid put the outer
+     stems 18px inboard of the cards they are supposed to point at. The arrows
+     between the cards take width, so quarters are not card centres. */
+  .fnd-rail{ display:flex; align-items:flex-start; height:34px; }
+  .fnd-up-cell{ flex:1 1 0; min-width:0; display:flex; justify-content:center; }
+  .fnd-arrow-ghost{ visibility:hidden; }
+  .fnd-up{ display:block; width:1px; height:34px; background:#4A5C7C; position:relative; }
   .fnd-up::before{ content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
     border-bottom:8px solid #7C8DF7; border-left:6px solid transparent; border-right:6px solid transparent;
     filter:drop-shadow(0 0 8px rgba(124,141,247,.6)); }
-  .fnd-hitl{ display:flex; align-items:center; justify-content:center; gap:14px; margin-top:14px; }
+  /* the line runs the full width of the band, as in the reference */
+  .fnd-loop-base{ display:flex; align-items:center; gap:18px; }
+  .fnd-loop-seg{ flex:1 1 0; border-top:1px dashed #3A4A63; }
+  .fnd-hitl{ display:flex; align-items:center; gap:14px; flex:0 0 auto; }
+  @media(max-width:900px){
+    /* the cards have wrapped by here, so stems can no longer point at anything */
+    .fnd-rail, .fnd-loop-seg{ display:none; }
+    .fnd-loop-base{ padding:0; justify-content:center; }
+    .fnd-loop{ margin-top:22px; }
+  }
   .fnd-hitl-av svg{ width:26px; height:26px; }
   .fnd-hitl-av{ width:48px; height:48px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto;
     color:var(--intel); border:1px solid color-mix(in srgb, var(--intel) 45%, transparent);
@@ -6063,14 +6089,22 @@ function renderFoundation(){
               ${l.items.map(it=>`<div class="fnd-item"><i>${gi(it[0])}</i>${it[1]}</div>`).join('')}
             </a>`).join('')}
         </div>
-        <div class="fnd-rail">
-          <div class="fnd-up"></div><div class="fnd-up"></div><div class="fnd-up"></div><div class="fnd-up"></div>
-        </div>
-        <div class="fnd-hitl">
-          <div class="fnd-hitl-av">${PRISM_ART.person}</div>
-          <div>
-            <div class="fnd-hitl-name">HUMAN-IN-THE-LOOP THROUGHOUT</div>
-            <div class="fnd-hitl-sub">Human judgment. Human authority. Human responsibility.</div>
+        <div class="fnd-loop">
+          <div class="fnd-rail" aria-hidden="true">
+            ${PRISM_LAYERS.map((l,i)=>`
+              ${i>0?'<div class="fnd-arrow fnd-arrow-ghost">&#10230;</div>':''}
+              <div class="fnd-up-cell"><i class="fnd-up"></i></div>`).join('')}
+          </div>
+          <div class="fnd-loop-base">
+            <span class="fnd-loop-seg"></span>
+            <div class="fnd-hitl">
+              <div class="fnd-hitl-av">${PRISM_ART.person}</div>
+              <div>
+                <div class="fnd-hitl-name">HUMAN-IN-THE-LOOP THROUGHOUT</div>
+                <div class="fnd-hitl-sub">Human judgment. Human authority. Human responsibility.</div>
+              </div>
+            </div>
+            <span class="fnd-loop-seg"></span>
           </div>
         </div>
         <div class="wp-foot">
