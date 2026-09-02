@@ -1062,6 +1062,65 @@ nav{
   .fnd-prop-sub{ font-size:11px; color:#8492AC; line-height:1.45; margin-top:7px; }
   .fnd-note{ font-size:12.5px; color:var(--dim2); margin-top:18px; }
 
+  /* ---------- Why PRISM: the bands below the four layers ----------
+     The screen was a headline, four cards and two buttons — 552px of a
+     1200px viewport sat empty and the page did not even scroll. These two
+     bands carry the weight: the worked example proves the "amplifying the
+     next" claim on one case, and the contrast states the gap it closes.
+     Neither repeats a figure or a guarantee stated elsewhere on the site. */
+  .fnd-band{ max-width:1680px; margin:0 auto; padding:0 48px 46px; }
+  .fnd-band-head{ display:flex; align-items:baseline; justify-content:space-between; gap:20px;
+    padding-top:34px; border-top:1px solid var(--border); margin-bottom:22px; }
+  .fnd-band-title{ font-family:var(--serif); font-size:26px; font-weight:400; color:var(--text); }
+  .fnd-band-sub{ font-size:13px; color:var(--dim2); margin-top:6px; }
+
+  .fnd-example-wrap{ min-width:0; }
+  .fnd-example{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; }
+  /* one continuous strip rather than four cards — the case does not restart
+     at each layer, and a gap between them would say that it does */
+  .fnd-ex{ padding:20px 22px; border-left:1px solid var(--border); min-width:0; position:relative;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--lc) 9%, transparent), transparent 62%); }
+  .fnd-ex:first-child{ border-left:none; border-top-left-radius:14px; border-bottom-left-radius:14px; }
+  .fnd-ex:last-child{ border-top-right-radius:14px; border-bottom-right-radius:14px; }
+  .fnd-ex::before{ content:""; position:absolute; top:0; left:0; right:0; height:2px; background:var(--lc); opacity:.85; }
+  .fnd-ex:first-child::before{ border-top-left-radius:14px; }
+  .fnd-ex:last-child::before{ border-top-right-radius:14px; }
+  .fnd-ex-head{ display:flex; align-items:center; gap:9px; font-size:11px; font-weight:700;
+    letter-spacing:.09em; color:var(--lc); margin-bottom:14px; }
+  .fnd-ex-num{ width:20px; height:20px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center;
+    font-size:11px; color:var(--lc); border:1px solid color-mix(in srgb, var(--lc) 70%, transparent);
+    background:color-mix(in srgb, var(--lc) 18%, transparent); }
+  .fnd-ex-q{ font-size:12.5px; font-weight:650; color:var(--text); margin-bottom:10px; }
+  .fnd-ex-item{ font-size:12px; color:#A8B6CC; line-height:1.5; padding:6px 0 6px 13px; position:relative; }
+  .fnd-ex-item::before{ content:""; position:absolute; left:0; top:12px; width:4px; height:4px;
+    border-radius:50%; background:var(--lc); }
+  .fnd-ex-foot{ font-size:11px; color:var(--dim2); margin-top:12px; padding-top:10px; border-top:1px solid var(--border); }
+
+  .fnd-contrast{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .fnd-cx{ border:1px solid var(--border); border-radius:14px; padding:20px 22px; min-width:0; }
+  .fnd-cx.is-before{ background:linear-gradient(180deg, rgba(229,72,77,.07), transparent 60%); }
+  .fnd-cx.is-after{ background:linear-gradient(180deg, rgba(52,211,153,.07), transparent 60%);
+    border-color:color-mix(in srgb, var(--confirm) 34%, var(--border)); }
+  .fnd-cx-head{ font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; margin-bottom:14px; }
+  .fnd-cx.is-before .fnd-cx-head{ color:var(--risk); }
+  .fnd-cx.is-after .fnd-cx-head{ color:var(--confirm); }
+  .fnd-cx-row{ font-size:12.5px; color:#B6C2D6; line-height:1.55; padding:11px 0 11px 22px;
+    border-top:1px solid var(--border); position:relative; }
+  .fnd-cx-row:first-of-type{ border-top:none; }
+  .fnd-cx-row::before{ position:absolute; left:0; top:10px; font-size:12px; }
+  .fnd-cx.is-before .fnd-cx-row::before{ content:"✕"; color:var(--risk); }
+  .fnd-cx.is-after .fnd-cx-row::before{ content:"✓"; color:var(--confirm); }
+
+  .fnd-foot{ padding-bottom:56px; }
+  @media(max-width:1200px){
+    .fnd-example{ grid-template-columns:repeat(2,1fr); }
+    .fnd-ex{ border-left:none; border-radius:0 !important; border-top:1px solid var(--border); }
+  }
+  @media(max-width:760px){
+    .fnd-band{ padding:0 20px 34px; }
+    .fnd-example, .fnd-contrast{ grid-template-columns:1fr; }
+  }
+
   .fnd-cards{ display:flex; align-items:stretch; gap:0; }
   @media(max-width:900px){ .fnd-cards{ flex-wrap:wrap; gap:14px; } .fnd-arrow{ display:none; } }
   .fnd-card{ flex:1 1 0; min-width:0; border:1px solid color-mix(in srgb, var(--lc) 78%, transparent); border-radius:14px;
@@ -6058,6 +6117,35 @@ const PRISM_PROPS = [
   {art:'bars',        color:'#F5B65E', title:'Designed to compound value', sub:'Every outcome strengthens the system.'}
 ];
 
+/* The same case carried through all four layers. This is the only surface
+   that shows them acting on one alert rather than described separately, so
+   it is the proof the "each amplifying the next" claim rests on. */
+const PRISM_WORKED = {
+  title:'Structuring via multiple accounts',
+  cols:[
+    {n:1, name:'AI INTELLIGENCE',    color:'#5CC8FF', head:'What it saw',
+     items:['18 cash deposits, each under $9,500','5 accounts resolving to one controller','One entity, reached across 3 hops'],
+     foot:'Resolution confidence 0.94'},
+    {n:2, name:'AGENTIC ACTIONS',    color:'#34E4C8', head:'What it proposed',
+     items:['Recommend: file a SAR','Risk score 92 / 100','14 evidence items attached'],
+     foot:'Agent confidence 91%'},
+    {n:3, name:'AI GOVERNANCE',      color:'#AF92FF', head:'What it required',
+     items:['Policy: SAR filing needs investigator approval','Segregation of duties enforced','Jane Smith, Senior Investigator'],
+     foot:'Approved 10:24 AM · logged'},
+    {n:4, name:'PERFORMANCE ENGINE', color:'#F5B65E', head:'What it learned',
+     items:['Outcome confirmed against the filing','Model retuned on the disposition','False positives down 37%'],
+     foot:'Returns to layer 1'}
+  ]
+};
+
+/* The problem the four layers exist to answer, stated as the gap it closes. */
+const PRISM_CONTRAST = [
+  ['Alerts arrive with no entity context',        'Every alert arrives with its network already attached'],
+  ['Fraud and AML each see half the picture',     'One entity, both control environments left intact'],
+  ['Decisions sit in a system nobody can audit',  'Every action carries its policy, authority and trail'],
+  ['Outcomes never reach the models',             'Every disposition retunes what gets scored next']
+];
+
 function renderFoundation(){
   const c = document.getElementById('page-foundation');
   c.innerHTML = `
@@ -6107,11 +6195,51 @@ function renderFoundation(){
             <span class="fnd-loop-seg"></span>
           </div>
         </div>
-        <div class="wp-foot">
-          <a class="e360-toggle-btn active" style="background:linear-gradient(90deg,var(--govern),var(--intel)); color:#050914;" data-nav="whyprism" href="#whyprism">See the outcomes &#8594;</a>
-          <a class="e360-toggle-btn" data-nav="domains" href="#domains">Explore the domains</a>
+      </div>
+    </div>
+
+    <section class="fnd-band">
+      <div class="fnd-band-head">
+        <div>
+          <div class="fnd-band-title">One alert. All four layers.</div>
+          <div class="fnd-band-sub">The same case carried end to end &mdash; ${PRISM_WORKED.title}</div>
         </div>
       </div>
+      <div class="fnd-example-wrap">
+      <div class="fnd-example">
+        ${PRISM_WORKED.cols.map(col=>`
+          <div class="fnd-ex" style="--lc:${col.color};">
+            <div class="fnd-ex-head"><span class="fnd-ex-num">${col.n}</span>${col.name}</div>
+            <div class="fnd-ex-q">${col.head}</div>
+            ${col.items.map(i=>`<div class="fnd-ex-item">${i}</div>`).join('')}
+            <div class="fnd-ex-foot">${col.foot}</div>
+          </div>`).join('')}
+      </div>
+      </div>
+    </section>
+
+    <section class="fnd-band">
+      <div class="fnd-band-head">
+        <div>
+          <div class="fnd-band-title">What changes</div>
+          <div class="fnd-band-sub">The gap the four layers exist to close</div>
+        </div>
+      </div>
+      <div class="fnd-contrast">
+        <div class="fnd-cx is-before">
+          <div class="fnd-cx-head">Without PRISM</div>
+          ${PRISM_CONTRAST.map(r=>`<div class="fnd-cx-row">${r[0]}</div>`).join('')}
+        </div>
+        <div class="fnd-cx is-after">
+          <div class="fnd-cx-head">With PRISM</div>
+          ${PRISM_CONTRAST.map(r=>`<div class="fnd-cx-row">${r[1]}</div>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <div class="wp-foot fnd-foot">
+      <a class="e360-toggle-btn active" style="background:linear-gradient(90deg,var(--govern),var(--intel)); color:#050914;" data-nav="whyprism" href="#whyprism">See the outcomes &#8594;</a>
+      <a class="e360-toggle-btn" data-nav="domains" href="#domains">Explore the domains</a>
     </div>`;
 }
 
@@ -6182,7 +6310,9 @@ renderWhyPrism();
     entity360:  '.e360-main',
     network360: '.e360-main',
     aml:        '.aml-workspace',
-    rtmaction:  '.rtma-section'
+    rtmaction:  '.rtma-section',
+    /* the worked example carries invented figures too */
+    foundation: '.fnd-example-wrap'
   };
   var html = '<div class="fd-illus"><b>ILLUSTRATIVE</b>'
     + '<span>— Synthetic scenario shown to demonstrate the interface. '
