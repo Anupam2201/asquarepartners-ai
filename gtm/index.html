@@ -928,16 +928,37 @@ nav{
   .fd-tl-sub{ font-size:11.5px; color:var(--dim); margin-top:2px; }
   .fd-head-link{ font-size:12px; font-weight:600; color:var(--govern); }
   /* ---------- Regulatory reporting dashboard ---------- */
-  .fd-row3-reg{ display:grid; grid-template-columns:0.95fr 1.25fr 1fr; gap:16px; min-width:0; }
+  /* Two across, not three. At three the quality percentages overflowed their
+     card by 33px and were clipped by its edge, and the reports table was
+     squeezed until "As Needed" and "Local Regulator" wrapped onto two lines.
+     Regulatory Coverage moved to its own full-width row below, where the map
+     has room instead of sitting in a third of a card. */
+  .fd-row3-reg{ display:grid; grid-template-columns:0.82fr 1.18fr; gap:16px; min-width:0; align-items:start; }
   .fd-row2-reg{ display:grid; grid-template-columns:1.25fr 1fr; gap:16px; min-width:0; align-items:start; }
   @media(max-width:1280px){ .fd-row3-reg, .fd-row2-reg{ grid-template-columns:1fr; } }
-  .fd-q{ display:grid; grid-template-columns:1fr auto 96px; align-items:center; gap:12px; padding:7px 0; font-size:12.5px; }
+  /* every track may shrink below its content, so the value can never be pushed
+     out past the card edge again */
+  .fd-q{ display:grid; grid-template-columns:minmax(0,1fr) auto minmax(48px,88px);
+    align-items:center; gap:10px; padding:7px 0; font-size:12.5px; }
+  .fd-q-name{ min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  /* The metric names are the content here, so the donut and the bar give up
+     width to them rather than the other way round — at 150px/88px the longest
+     label ("Validation Pass Rate") needed 135px in a 121px slot and ellipsed. */
+  .fd-quality{ grid-template-columns:134px minmax(0,1fr); gap:14px; }
+  .fd-quality .fd-q{ grid-template-columns:minmax(0,1fr) auto minmax(40px,62px); gap:8px; }
   .fd-q-name{ display:flex; align-items:center; gap:8px; color:var(--dim); white-space:nowrap; }
   .fd-q-name i{ font-style:normal; font-size:12px; }
   .fd-q-val{ color:var(--text); font-weight:600; font-variant-numeric:tabular-nums; }
   .fd-tr.fd-reports{ grid-template-columns:0.6fr 1.1fr 0.9fr 1fr 0.75fr 0.95fr; }
   .fd-tr.fd-reports .fd-th-r{ text-align:right; }
   .fd-cov{ display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center; }
+  /* Full width, so the map is the size of the point it is making and the
+     legend reads as a column beside it rather than a stub in a corner. */
+  .fd-coverage{ margin-top:16px; }
+  .fd-coverage .fd-cov{ grid-template-columns:minmax(0,1fr) minmax(240px,320px); gap:40px; align-items:center; }
+  .fd-coverage .fd-cov-row{ padding:10px 0; border-top:1px solid var(--border); font-size:13px; }
+  .fd-coverage .fd-cov-row:first-child{ border-top:none; }
+  @media(max-width:900px){ .fd-coverage .fd-cov{ grid-template-columns:1fr; gap:16px; } }
   .fd-cov-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; font-size:12.5px; padding:7px 0; }
   .fd-cov-row span{ display:flex; align-items:center; gap:8px; color:var(--dim); white-space:nowrap; }
   .fd-cov-row b{ color:var(--text); font-weight:600; font-variant-numeric:tabular-nums; }
@@ -3783,9 +3804,9 @@ function widgetRegReportingDash(w){
     <div class="fd-row3-reg">
       <div class="fd-card">
         <div class="fd-card-head"><div class="fd-card-title">Report Quality Overview <span class="fd-info">(Last 30 days)</span></div></div>
-        <div class="fd-drivers" style="grid-template-columns:150px 1fr;">
-          <div>${fdDonut({items:w.quality.ring, size:148, thickness:22, main:w.quality.score, sub:'Overall Quality',
-            mainSize:24, subDy:20, mainColor:'#EAE7DC', alt:'Overall report quality'})}</div>
+        <div class="fd-drivers fd-quality">
+          <div>${fdDonut({items:w.quality.ring, size:130, thickness:20, main:w.quality.score, sub:'Overall Quality',
+            mainSize:22, subDy:18, mainColor:'#EAE7DC', alt:'Overall report quality'})}</div>
           <div>
             ${w.quality.rows.map(q=>`
               <div class="fd-q">
@@ -3815,19 +3836,6 @@ function widgetRegReportingDash(w){
         </div>
       </div>
 
-      <div class="fd-card">
-        <div class="fd-card-head"><div class="fd-card-title">Regulatory Coverage</div></div>
-        <div class="fd-cov">
-          <div>${fdWorldMap(w)}</div>
-          <div>
-            ${w.geo.counts.map(c=>`
-              <div class="fd-cov-row">
-                <span><i class="fd-dot" style="background:${w.geo.bandColors[c.band]};"></i>${c.label}</span>
-                <b>${c.pct}</b>
-              </div>`).join('')}
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="fd-row2-reg">
@@ -3870,6 +3878,20 @@ function widgetRegReportingDash(w){
               <span class="fd-bar-track"><i class="fd-bar-fill" style="width:${d.pct}%;background:${d.color};"></i></span>
             </div>
           </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="fd-card fd-coverage">
+      <div class="fd-card-head"><div class="fd-card-title">Regulatory Coverage</div></div>
+      <div class="fd-cov">
+        <div>${fdWorldMap(w)}</div>
+        <div>
+          ${w.geo.counts.map(c=>`
+            <div class="fd-cov-row">
+              <span><i class="fd-dot" style="background:${w.geo.bandColors[c.band]};"></i>${c.label}</span>
+              <b>${c.pct}</b>
+            </div>`).join('')}
+        </div>
       </div>
     </div>
   </div>`;
