@@ -1150,6 +1150,13 @@ nav{
   .ab-h1-hl{ background:linear-gradient(90deg,var(--agentic),var(--intel) 60%,var(--govern));
     -webkit-background-clip:text; background-clip:text; color:transparent; }
   .ab-kicker{ font-size:15px; color:var(--agentic); margin:16px 0 18px; }
+  /* Stated once, here — the closing line carries the global reach, so the two
+     read as a pair rather than repeating each other. */
+  .ab-locale{ display:inline-flex; align-items:center; gap:9px; margin-top:22px;
+    font-size:12.5px; color:var(--dim); border:1px solid var(--border);
+    border-radius:999px; padding:8px 17px; background:rgba(3,8,18,.45); }
+  .ab-locale-icon{ color:var(--gold); font-size:14px; display:inline-flex; }
+  .ab-locale b{ color:var(--text); font-weight:600; }
   .ab-mark svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 0 40px rgba(199,161,90,.25)); }
 
   .ab-band{ max-width:1560px; margin:0 auto; padding:0 48px 44px; }
@@ -6434,6 +6441,7 @@ function renderAbout(){
         <h2 class="ab-h1">AI-native platforms for<br><span class="ab-h1-hl">regulated financial services.</span></h2>
         <div class="ab-kicker">Banking. Fintech. Data. Financial Services Expertise.</div>
         <p class="lede" style="max-width:560px;">We combine deep domain expertise across banking and fintech with enterprise AI and data excellence to build platforms that drive intelligence, guide action and deliver measurable performance.</p>
+        <div class="ab-locale"><span class="ab-locale-icon">${gi('⌖')}</span>Headquartered in <b>New York City</b></div>
       </div>
       <div class="ab-mark">
         <svg viewBox="0 0 300 300" role="img" aria-label="Asquare mark">
